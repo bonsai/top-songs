@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Ratio Proportion Network - 黄金比例ネットワーク</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 95vw;
+        }
+        
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+        }
+        
+        .phi-display {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .info {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        #canvas {
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            background: rgba(26, 26, 46, 0.8);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>黄金比例ネットワーク</h1>
+        <div class="phi-display">φ = 1.6180339887...</div>
+        <div class="info">
+            再帰的黄金分割による視覚的表現 | フィボナッチ螺旋重ね合わせ
+        </div>
+        <canvas id="canvas" width="1200" height="700"></canvas>
+        <div class="controls">
+            <button onclick="toggleAnimation()">⏯ アニメーション</button>
+            <button onclick="regenerate(6)">深度 6</button>
+            <button onclick="regenerate(8)">深度 8</button>
+            <button onclick="regenerate(10)">深度 10</button>
+            <button onclick="toggleSpiral()">🌀 螺旋</button>
+            <button onclick="togglePhyllotaxis()">🌻 葉序</button>
+            <button onclick="resetView()">🔄 リセット</button>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">長方形数</div>
+                <div class="stat-value" id="rectCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">螺旋点数</div>
+                <div class="stat-value" id="spiralCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">美指数</div>
+                <div class="stat-value" id="beautyIndex">0.00</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">経過時間</div>
+                <div class="stat-value" id="time">0</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const PHI = (1 + Math.sqrt(5)) / 2;
+        const GOLDEN_ANGLE = (2 * Math.PI) / (PHI * PHI);
+        
+        let currentDepth = 8;
+        let animationId = null;
+        let time = 0;
+        let showSpiral = true;
+        let showPhyllotaxis = false;
+        let rectangles = [];
+        let spiralPoints = [];
+        let phyllotaxisPoints = [];
+        let colors = [];
+        
+        // Fibonacci calculation
+        function fibonacci(n) {
+            if (n <= 0) return 0;
+            if (n === 1) return 1;
+            let a = 0, b = 1;
+            for (let i = 2; i <= n; i++) {
+                [a, b] = [b, a + b];
+            }
+            return b;
+        }
+        
+        // Golden recursive split
+        function goldenSplit(x, y, width, height, depth) {
+            if (depth <= 0) {
+                return [[x, y, width, height]];
+            }
+            
+            const vertical = width > height;
+            const split = vertical ? width / PHI : height / PHI;
+            
+            if (vertical) {
+                return [
+                    ...goldenSplit(x, y, split, height, depth - 1),
+                    ...goldenSplit(x + split, y, width - split, height, depth - 1)
+                ];
+            } else {
+                return [
+                    ...goldenSplit(x, y, width, split, depth - 1),
+                    ...goldenSplit(x, y + split, width, height - split, depth - 1)
+                ];
+            }
+        }
+        
+        // Generate spiral points
+        function generateSpiral(count) {
+            const points = [];
+            let angle = 0;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scale = 8;
+            
+            for (let i = 1; i <= count; i++) {
+                const fib = fibonacci(i);
+                const radius = fib * scale;
+                points.push({
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle),
+                    fib: fib
+                });
+                angle += Math.PI / 2;
+            }
+            
+            return points;
+        }
+        
+        // Generate phyllotaxis points
+        function generatePhyllotaxis(count) {
+            const points = [];
+            const scale = 12;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < count; i++) {
+                const angle = i * GOLDEN_ANGLE;
+                const radius = scale * Math.sqrt(i);
+                points.push({
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle),
+                    index: i
+                });
+            }
+            
+            return points;
+        }
+        
+        // Generate HSL color
+        function generateColor(index, total) {
+            const hue = (index * 360 / total * PHI) % 360;
+            return `hsl(${hue}, 70%, 60%)`;
+        }
+        
+        // Calculate beauty index
+        function calculateBeautyIndex(width, height) {
+            const ratio = Math.max(width, height) / Math.min(width, height);
+            const logRatio = Math.log(ratio);
+            const logPhi = Math.log(PHI);
+            const beauty = 1 - Math.abs(logRatio - logPhi) / logPhi;
+            return Math.max(0, Math.min(1, beauty));
+        }
+        
+        // Regenerate all elements
+        function regenerate(depth) {
+            currentDepth = depth;
+            rectangles = goldenSplit(0, 0, canvas.width, canvas.height, depth);
+            spiralPoints = generateSpiral(Math.min(rectangles.length, 15));
+            phyllotaxisPoints = generatePhyllotaxis(200);
+            colors = rectangles.map((_, i) => generateColor(i, rectangles.length));
+            
+            document.getElementById('rectCount').textContent = rectangles.length;
+            document.getElementById('spiralCount').textContent = spiralPoints.length;
+            
+            const beauty = calculateBeautyIndex(canvas.width, canvas.height);
+            document.getElementById('beautyIndex').textContent = beauty.toFixed(3);
+            
+            if (!animationId) {
+                draw();
+            }
+        }
+        
+        // Draw rectangles
+        function drawRectangles() {
+            rectangles.forEach((rect, i) => {
+                const [x, y, w, h] = rect;
+                
+                ctx.fillStyle = colors[i] || 'rgba(102, 126, 234, 0.3)';
+                ctx.globalAlpha = 0.4 + Math.sin(time * 0.03 + i * 0.5) * 0.2;
+                ctx.fillRect(x, y, w, h);
+                
+                ctx.globalAlpha = 0.8;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(x, y, w, h);
+                
+                if (i < 20) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '11px Courier New';
+                    ctx.globalAlpha = 1.0;
+                    ctx.fillText(`F(${i+1})`, x + 5, y + 15);
+                }
+            });
+        }
+        
+        // Draw golden spiral
+        function drawSpiral() {
+            if (!showSpiral || spiralPoints.length < 2) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(spiralPoints[0].x, spiralPoints[0].y);
+            
+            for (let i = 1; i < spiralPoints.length; i++) {
+                ctx.lineTo(spiralPoints[i].x, spiralPoints[i].y);
+            }
+            
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#667eea';
+            ctx.shadowBlur = 15;
+            ctx.globalAlpha = 0.9;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            spiralPoints.forEach((point, i) => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = colors[i] || '#667eea';
+                ctx.globalAlpha = 0.8;
+                ctx.fill();
+            });
+        }
+        
+        // Draw phyllotaxis
+        function drawPhyllotaxis() {
+            if (!showPhyllotaxis) return;
+            
+            phyllotaxisPoints.forEach((point, i) => {
+                const size = 3 + Math.sin(time * 0.05 + i * 0.1) * 2;
+                const hue = (i * 137.508) % 360;
+                
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.7)`;
+                ctx.fill();
+            });
+        }
+        
+        // Main draw function
+        function draw() {
+            ctx.fillStyle = 'rgba(26, 26, 46, 0.15)';
+            ctx.globalAlpha = 1.0;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawRectangles();
+            drawSpiral();
+            drawPhyllotaxis();
+            
+            if (animationId) {
+                time++;
+                document.getElementById('time').textContent = time;
+                animationId = requestAnimationFrame(draw);
+            }
+        }
+        
+        // Controls
+        function toggleAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            } else {
+                time = 0;
+                animationId = requestAnimationFrame(draw);
+            }
+        }
+        
+        function toggleSpiral() {
+            showSpiral = !showSpiral;
+            if (!animationId) draw();
+        }
+        
+        function togglePhyllotaxis() {
+            showPhyllotaxis = !showPhyllotaxis;
+            if (!animationId) draw();
+        }
+        
+        function resetView() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            time = 0;
+            showSpiral = true;
+            showPhyllotaxis = false;
+            ctx.fillStyle = '#1a1a2e';
+            ctx.globalAlpha = 1.0;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            regenerate(currentDepth);
+        }
+        
+        // Initialize
+        regenerate(currentDepth);
+    </script>
+</body>
+</html>

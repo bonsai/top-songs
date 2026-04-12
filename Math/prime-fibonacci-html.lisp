@@ -1,4 +1,4 @@
-;;; prime-fibonacci-html.lisp — Generates HTML for Prime-Fibonacci Paper
+﻿;;; prime-fibonacci-html.lisp — Generates HTML for Prime-Fibonacci Paper
 (in-package :baku-fibonacci-viz)
 
 (defun generate-prime-fibonacci-html ()
