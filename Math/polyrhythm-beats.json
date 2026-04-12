@@ -1,0 +1,270 @@
+{
+  "title": "ポリリズム音楽 — ビートと数学の関係",
+  "generated": "2026-04-13",
+  "categories": {
+    "rhythm_fundamentals": {
+      "name_ja": "リズムの基礎 — 拍子と周期",
+      "name_en": "Rhythm Fundamentals — Meter & Period",
+      "topics": [
+        {
+          "id": 1,
+          "ja": "拍子の数学 — n/m拍子の最小公倍数周期",
+          "en": "Math of meter — LCM period of n/m time",
+          "formula": "LCM(a, b) = |a × b| / GCD(a, b)",
+          "examples": [
+            {"pattern": "3拍子 × 4拍子", "lcm": 12, "cycle": "12拍周期"},
+            {"pattern": "5拍子 × 7拍子", "lcm": 35, "cycle": "35拍周期"},
+            {"pattern": "3拍子 × 5拍子 × 7拍子", "lcm": 105, "cycle": "105拍周期"}
+          ]
+        },
+        {
+          "id": 2,
+          "ja": "周期関数としてのリズム — sin(2πt/T)",
+          "en": "Rhythm as periodic function — sin(2πt/T)",
+          "formula": "ビート位置 = Σ sin(2π·t/T_i + φ_i)",
+          "description": "各拍子を正弦波でモデル化し、重ね合わせでポリリズムを生成"
+        }
+      ]
+    },
+    "polyrhythm_patterns": {
+      "name_ja": "ポリリズムパターン",
+      "name_en": "Polyrhythm Patterns",
+      "patterns": [
+        {
+          "id": 3,
+          "name": "3:2 (ヘミオラ)",
+          "formula": "LCM(3,2) = 6拍周期",
+          "notation": "3連符 vs 2分音符",
+          "history": "バロック音楽・アフリカ音楽の基本",
+          "feel": "ワルツの揺らぎ",
+          "example": "ショパン ワルツ、アフリカン・ドラム"
+        },
+        {
+          "id": 4,
+          "name": "4:3",
+          "formula": "LCM(4,3) = 12拍周期",
+          "notation": "4拍子の中に3連符",
+          "history": "ジャズのSwing Feelの基礎",
+          "feel": "跳ねるリズム",
+          "example": "マイルス・デイヴィス 'Blue in Green'"
+        },
+        {
+          "id": 5,
+          "name": "5:4",
+          "formula": "LCM(5,4) = 20拍周期",
+          "notation": "5拍子 × 4拍子",
+          "history": "現代音楽・プログレッシブロック",
+          "feel": "不規則だが周期的",
+          "example": "ピンク・フロイド 'Money' (7/4だが5:4的感覚)"
+        },
+        {
+          "id": 6,
+          "name": "7:4",
+          "formula": "LCM(7,4) = 28拍周期",
+          "notation": "7拍子 × 4拍子",
+          "history": "プログレ・メタル",
+          "feel": "複雑だがグルーヴィー",
+          "example": "Tool 'Schism' (5/4 + 7/8)"
+        },
+        {
+          "id": 7,
+          "name": "3:4:5 (三重ポリリズム)",
+          "formula": "LCM(3,4,5) = 60拍周期",
+          "notation": "3拍子 × 4拍子 × 5拍子",
+          "history": "現代クラシック・ミニマル音楽",
+          "feel": "螺旋状に展開するリズム",
+          "example": "スティーヴ・ライヒ 'Music for 18 Musicians'"
+        },
+        {
+          "id": 8,
+          "name": "フィボナッチポリリズム 3:5:8:13",
+          "formula": "LCM(3,5,8,13) = 1560拍周期",
+          "notation": "フィボナッチ数列の拍子重ね",
+          "history": "数学音楽・実験音楽",
+          "feel": "自然の成長パターン",
+          "example": "概念実証 — 自然界の螺旋に対応"
+        }
+      ]
+    },
+    "euclidean_rhythms": {
+      "name_ja": "ユークリッド・リズム",
+      "name_en": "Euclidean Rhythms",
+      "topics": [
+        {
+          "id": 9,
+          "ja": "ユークリッドの互除法によるリズム生成",
+          "en": "Euclidean algorithm for rhythm generation",
+          "formula": "E(k, n) — n拍中にk個のアクセントを均等配置",
+          "algorithm": "bjorklund算法 — 0と1のシーケンスを均等分布",
+          "examples": [
+            {"k": 3, "n": 8, "pattern": "10010010", "name": "クンパッサー (キューバ)"},
+            {"k": 5, "n": 16, "pattern": "1001010010100100", "name": "ベル・パターン (西アフリカ)"},
+            {"k": 4, "n": 16, "pattern": "1000100010001000", "name": "4つ打ち (ハウス/テクノ)"},
+            {"k": 7, "n": 16, "pattern": "1010101010101010", "name": "ソーン (ブルガリア)"},
+            {"k": 5, "n": 8, "pattern": "10101000", "name": "クンパッサー変形"},
+            {"k": 3, "n": 4, "pattern": "1010", "name": "基本ワルツ"}
+          ]
+        },
+        {
+          "id": 10,
+          "ja": "ユークリッド・リズムの数学的性質",
+          "en": "Mathematical properties of Euclidean rhythms",
+          "properties": [
+            "kとnが互いに素 → 最大の周期・最小の反復",
+            "kがnを割る → 均等配置 (例: 4:16 = 4つ打ち)",
+            "黄金比近似: k/n ≈ 1/φ → 最も『自然』なリズム"
+          ],
+          "golden_rhythm": {
+            "ratio": "k/n ≈ 1/φ ≈ 0.618",
+            "example": "k=8, n=13 → E(8,13) = 1010101010100",
+            "feel": "フィボナッチ的・非対称だが調和"
+          }
+        }
+      ]
+    },
+    "beat_mathematics": {
+      "name_ja": "ビートの数式",
+      "name_en": "Beat Mathematics",
+      "topics": [
+        {
+          "id": 11,
+          "ja": "テンポと周波数 — BPMからHzへ",
+          "en": "Tempo & frequency — BPM to Hz",
+          "formula": "f(Hz) = BPM / 60",
+          "table": [
+            {"bpm": 60, "hz": 1.0, "note": "1秒1拍 — 基本単位"},
+            {"bpm": 120, "hz": 2.0, "note": "ハウス/テクノ標準"},
+            {"bpm": 140, "hz": 2.33, "note": "ダブステップ"},
+            {"bpm": 174, "hz": 2.90, "note": "ソルフェジオ周波数"},
+            {"bpm": 432, "hz": 7.20, "note": "ヴェルディのA音基準"}
+          ]
+        },
+        {
+          "id": 12,
+          "ja": "ビート位相 — φによるズレの表現",
+          "en": "Beat phase — expressing offset by φ",
+          "formula": "b_i(t) = sin(2π·f_i·t + φ_i)",
+          "concepts": [
+            {"concept": "位相差0°", "effect": "同期 — 力強いグルーヴ"},
+            {"concept": "位相差90°", "effect": "4分の1ズレ — 浮遊感"},
+            {"concept": "位相差180°", "effect": "逆位相 — 緊張感・切迫感"},
+            {"concept": "位相差φ(137.5°)", "effect": "黄金角ズレ — 自然な揺らぎ"}
+          ]
+        },
+        {
+          "id": 13,
+          "ja": "エンベロープ関数 — 音の立ち上がり・減衰",
+          "en": "Envelope function — attack/decay of sound",
+          "formula": "A(t) = A₀ · t^α · e^(-βt) · sin(2πft)",
+          "adsr": {
+            "attack": "0-50ms — 打撃音の立ち上がり",
+            "decay": "50-200ms — 余韻への移行",
+            "sustain": "200ms- — 持続レベル",
+            "release": "解放後 — フェードアウト"
+          }
+        }
+      ]
+    },
+    "polyrhythm_generation": {
+      "name_ja": "ポリリズム生成アルゴリズム",
+      "name_en": "Polyrhythm Generation Algorithm",
+      "topics": [
+        {
+          "id": 14,
+          "ja": "重ね合わせ原理 — 線形結合によるリズム合成",
+          "en": "Superposition principle — rhythm synthesis by linear combination",
+          "formula": "R(t) = Σ w_i · sin(2π·f_i·t + φ_i) · E_i(t)",
+          "components": {
+            "f_i": "各拍子の周波数 (BPM/60)",
+            "φ_i": "位相差 (ズレ)",
+            "w_i": "重み (音量バランス)",
+            "E_i(t)": "エンベロープ関数"
+          }
+        },
+        {
+          "id": 15,
+          "ja": "コード実装 — JavaScript/WebAudio",
+          "en": "Code implementation — JavaScript/WebAudio",
+          "code_structure": {
+            "PolyrhythmEngine": {
+              "init(bpm, layers)": "エンジン初期化",
+              "addLayer(beats_per_cycle, volume, phase)": "レイヤー追加",
+              "start()": "再生開始",
+              "stop()": "再生停止"
+            },
+            "EuclideanRhythm": {
+              "generate(k, n)": "E(k,n)パターン生成",
+              "toMidiSequence()": "MIDIシーケンス変換"
+            }
+          }
+        }
+      ]
+    },
+    "cultural_connections": {
+      "name_ja": "文化との接続 — 歴史と未来",
+      "name_en": "Cultural Connections — History & Future",
+      "topics": [
+        {
+          "id": 16,
+          "ja": "歴史: アフリカ→キューバ→ジャズ→電子音楽",
+          "en": "History: Africa → Cuba → Jazz → Electronic",
+          "timeline": [
+            {"era": "古代アフリカ", "rhythm": "ユークリッド・リズムの口承伝統"},
+            {"era": "16-19世紀", "rhythm": "キューバ・クラーベの確立"},
+            {"era": "1920-40s", "rhythm": "ジャズ・スウィング (4:3ポリリズム)"},
+            {"era": "1960-70s", "rhythm": "ミニマル音楽 (ライヒ、グラス)"},
+            {"era": "1980-90s", "rhythm": "ハウス/テクノ (4:16均等配置)"},
+            {"era": "2000s-", "rhythm": "IDM/グルーヴ・アルゴリズム音楽"}
+          ]
+        },
+        {
+          "id": 17,
+          "ja": "未来: AI作曲・適応型ポリリズム・VR音楽空間",
+          "en": "Future: AI composition, adaptive polyrhythm, VR music space",
+          "future_applications": [
+            "AIが聴者の心拍数に合わせてBPMを動的調整",
+            "VR空間で3次元的に配置されたリズム・ソース",
+            "フィボナッチ・ポリリズムによる瞑想音楽生成",
+            "リアルタイム・ポリリズム・インプロヴィゼーション補助"
+          ]
+        },
+        {
+          "id": 18,
+          "ja": "講義フック: 「リズムは数学の最も原始的な形式」",
+          "en": "Lecture hook: 'Rhythm is math's most primal form'",
+          "hooks": [
+            "「なぜ4つ打ちは気持ちいいのか？— ユークリッドが2000年前に証明済み」",
+            "「アフリカのドラムと日本の太鼓 — 同じアルゴリズムで生成されている」",
+            "「心臓の鼓動 = 1Hz、テクノ = 2Hz — 数学が身体を動かす」",
+            "「フィボナッチ・リズムを聴くと、脳が『自然』と認識する」"
+          ]
+        }
+      ]
+    }
+  },
+  "cross_cutting_themes": {
+    "unified_principle": {
+      "ja": "拍子(整数)→周波数(実数)→位相(角度)→グルーヴ(知覚) という因果連鎖",
+      "en": "Meter(integer)→Frequency(real)→Phase(angle)→Groove(perception) causal chain",
+      "chain": [
+        "① 拍子比 a:b がポリリズムの基本構造を決定",
+        "② LCM(a,b) が周期長を決定",
+        "③ BPM/60 が周波数(Hz)を決定",
+        "④ 位相差φ がグルーヴの質を決定",
+        "⑤ ユークリッド配置が『自然さ』を決定"
+      ]
+    },
+    "key_equation": "R(t) = Σ sin(2π·(BPM_i/60)·t + φ_i) — ビートから音楽へ",
+    "connection_to_math": {
+      "fibonacci": "フィボナッチ拍子 (3:5:8:13) は自然の成長パターンに対応",
+      "golden_ratio": "k/n ≈ 1/φ のリズムが最も『調和的』に知覚される",
+      "fractal": "自己相似リズム (例: 16分→8分→4分の入れ子構造) はフラクタル"
+    }
+  },
+  "summary": {
+    "total_topics": 18,
+    "completed": 18,
+    "categories": 6,
+    "files": ["polyrhythm-beats.json"]
+  }
+}
