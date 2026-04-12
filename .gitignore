@@ -1,0 +1,18 @@
+# Qwen Code
+.qwen/
+*.session
+*.log
+
+# Lisp
+*.fasl
+*.sbclrc
+.fasl/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db

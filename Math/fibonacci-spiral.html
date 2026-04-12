@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fibonacci Nature Simulation - スマホ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: #000;
+            border-radius: 50px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+        
+        .status-bar {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 99;
+        }
+        
+        #canvas {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            z-index: 50;
+        }
+        
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #4a9eff, #7b68ee);
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+            flex: 1;
+            min-width: 70px;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .mode-tabs {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 50;
+        }
+        
+        .mode-tab {
+            padding: 10px 8px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-tab.active {
+            background: linear-gradient(135deg, #4a9eff, #7b68ee);
+        }
+        
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #fff;
+            border-radius: 3px;
+        }
+        
+        .info {
+            position: absolute;
+            top: 95px;
+            left: 15px;
+            right: 15px;
+            color: #fff;
+            font-size: 11px;
+            text-align: center;
+            opacity: 0.7;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="notch"></div>
+        <div class="status-bar">
+            <span id="time">9:41</span>
+            <span>📶 🔋</span>
+        </div>
+        
+        <div class="mode-tabs">
+            <button class="mode-tab active" onclick="setMode('fly')">🪰 ハエ</button>
+            <button class="mode-tab" onclick="setMode('water')">💧 水滴</button>
+            <button class="mode-tab" onclick="setMode('flame')">🔥 炎</button>
+            <button class="mode-tab" onclick="setMode('leaf')">🍃 葉</button>
+        </div>
+        
+        <div class="info" id="info">
+            Fibonacci: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610
+        </div>
+        
+        <canvas id="canvas"></canvas>
+        
+        <div class="controls">
+            <button onclick="toggleAnimation()">⏯ 再生/停止</button>
+            <button onclick="resetAnimation()">🔄 リセット</button>
+            <button onclick="togglePsychedelic()">🌈 虹</button>
+        </div>
+        
+        <div class="home-indicator"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 390;
+        canvas.height = 844;
+        
+        let animationId = null;
+        let isRunning = true;
+        let currentMode = 'fly';
+        let psychedelicMode = true;
+        let time = 0;
+        
+        const fibonacciNumbers = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610];
+        const goldenRatio = 1.618033988749895;
+        const goldenAngle = Math.PI * 2 / (goldenRatio * goldenRatio);
+        
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = 
+                now.getHours().toString().padStart(2,'0') + ':' + 
+                now.getMinutes().toString().padStart(2,'0');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // 🪰 ハエ - Fibonacci Fly Movement
+        function drawFlyPattern() {
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < fibonacciNumbers.length && i < 20; i++) {
+                const fib = fibonacciNumbers[i];
+                const angle = i * goldenAngle;
+                const radius = Math.sqrt(i) * 25;
+                const x = canvas.width/2 + Math.cos(angle + time * 0.02) * radius;
+                const y = canvas.height/2 + Math.sin(angle + time * 0.02) * radius;
+                
+                // Fly body
+                const hue = psychedelicMode ? (i * 30 + time) % 360 : 45;
+                ctx.beginPath();
+                ctx.arc(x, y, 4 + fib * 0.2, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+                ctx.fill();
+                
+                // Wings
+                ctx.beginPath();
+                ctx.ellipse(x - 6, y - 4, 8, 4, Math.sin(time * 0.5) * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${hue}, 60%, 80%, 0.5)`;
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.ellipse(x + 6, y - 4, 8, 4, -Math.sin(time * 0.5) * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${hue}, 60%, 80%, 0.5)`;
+                ctx.fill();
+                
+                // Movement trail
+                if (i > 0) {
+                    const prevAngle = (i - 1) * goldenAngle;
+                    const prevRadius = Math.sqrt(i - 1) * 25;
+                    const prevX = canvas.width/2 + Math.cos(prevAngle + time * 0.02) * prevRadius;
+                    const prevY = canvas.height/2 + Math.sin(prevAngle + time * 0.02) * prevRadius;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = `hsla(${hue}, 70%, 70%, 0.3)`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        // 💧 水滴 - Fibonacci Water Drops
+        function drawWaterPattern() {
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < fibonacciNumbers.length && i < 15; i++) {
+                const fib = fibonacciNumbers[i];
+                const x = (canvas.width / 2) + Math.sin(time * 0.03 + i * 0.5) * fib * 8;
+                const y = (i * 50 + time * 2) % (canvas.height + 50) - 25;
+                const size = 5 + fib * 0.5;
+                
+                // Water drop
+                const hue = psychedelicMode ? (i * 40 + time * 0.5) % 360 : 200;
+                ctx.beginPath();
+                ctx.moveTo(x, y - size);
+                ctx.bezierCurveTo(x + size, y, x + size, y + size * 1.5, x, y + size * 2);
+                ctx.bezierCurveTo(x - size, y + size * 1.5, x - size, y, x, y - size);
+                ctx.fillStyle = `hsla(${hue}, 80%, 65%, 0.8)`;
+                ctx.fill();
+                
+                // Highlight
+                ctx.beginPath();
+                ctx.arc(x - size * 0.3, y + size * 0.5, size * 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${hue}, 50%, 90%, 0.9)`;
+                ctx.fill();
+                
+                // Ripple effect
+                const rippleSize = (Math.sin(time * 0.1 + i) + 1) * 10;
+                ctx.beginPath();
+                ctx.arc(x, y + size * 2, rippleSize, 0, Math.PI * 2);
+                ctx.strokeStyle = `hsla(${hue}, 70%, 70%, ${0.3 - rippleSize * 0.02})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+        
+        // 🔥 炎 - Fibonacci Flame Flicker
+        function drawFlamePattern() {
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const baseX = canvas.width / 2;
+            const baseY = canvas.height - 100;
+            
+            for (let i = 0; i < fibonacciNumbers.length && i < 15; i++) {
+                const fib = fibonacciNumbers[i];
+                const flickerX = baseX + Math.sin(time * 0.1 + i * goldenAngle) * fib * 3;
+                const flickerY = baseY - i * 35 - Math.random() * 20;
+                const height = 30 + fib * 2;
+                const width = 15 + fib;
+                
+                // Flame gradient
+                const gradient = ctx.createRadialGradient(
+                    flickerX, flickerY, 0,
+                    flickerX, flickerY, height
+                );
+                
+                const hue = psychedelicMode ? (i * 25 + time * 0.5) % 60 : 20;
+                gradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.9)`);
+                gradient.addColorStop(0.5, `hsla(${hue + 20}, 100%, 50%, 0.7)`);
+                gradient.addColorStop(1, `hsla(${hue + 40}, 100%, 30%, 0)`);
+                
+                ctx.beginPath();
+                ctx.moveTo(flickerX - width/2, flickerY + height);
+                ctx.quadraticCurveTo(flickerX, flickerY - height * 0.5, flickerX + width/2, flickerY + height);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Inner glow
+                ctx.beginPath();
+                ctx.moveTo(flickerX - width/4, flickerY + height * 0.8);
+                ctx.quadraticCurveTo(flickerX, flickerY, flickerX + width/4, flickerY + height * 0.8);
+                ctx.fillStyle = `hsla(${hue}, 100%, 90%, 0.6)`;
+                ctx.fill();
+            }
+        }
+        
+        // 🍃 葉 - Fibonacci Leaves
+        function drawLeafPattern() {
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < fibonacciNumbers.length && i < 20; i++) {
+                const fib = fibonacciNumbers[i];
+                const angle = i * goldenAngle;
+                const radius = Math.sqrt(i) * 30;
+                const x = centerX + Math.cos(angle + time * 0.01) * radius;
+                const y = centerY + Math.sin(angle + time * 0.01) * radius;
+                const leafSize = 10 + fib * 0.8;
+                const rotation = angle + Math.sin(time * 0.05 + i) * 0.3;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rotation);
+                
+                // Leaf shape
+                const hue = psychedelicMode ? (i * 18 + time * 0.3) % 360 : 120;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(leafSize/2, -leafSize/3, leafSize, -leafSize/4, leafSize, 0);
+                ctx.bezierCurveTo(leafSize, leafSize/4, leafSize/2, leafSize/3, 0, 0);
+                ctx.fillStyle = `hsla(${hue}, 70%, 50%, 0.8)`;
+                ctx.fill();
+                
+                // Leaf vein
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(leafSize * 0.8, 0);
+                ctx.strokeStyle = `hsla(${hue}, 50%, 30%, 0.6)`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                
+                // Side veins
+                for (let j = 1; j <= 3; j++) {
+                    const veinX = leafSize * j * 0.2;
+                    ctx.beginPath();
+                    ctx.moveTo(veinX, 0);
+                    ctx.lineTo(veinX + 5, -5);
+                    ctx.moveTo(veinX, 0);
+                    ctx.lineTo(veinX + 5, 5);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        function animate() {
+            if (!isRunning) return;
+            
+            time++;
+            
+            switch(currentMode) {
+                case 'fly': drawFlyPattern(); break;
+                case 'water': drawWaterPattern(); break;
+                case 'flame': drawFlamePattern(); break;
+                case 'leaf': drawLeafPattern(); break;
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            resetAnimation();
+        }
+        
+        function toggleAnimation() {
+            isRunning = !isRunning;
+            if (isRunning) animate();
+        }
+        
+        function resetAnimation() {
+            if (animationId) cancelAnimationFrame(animationId);
+            time = 0;
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (isRunning) animate();
+        }
+        
+        function togglePsychedelic() {
+            psychedelicMode = !psychedelicMode;
+        }
+        
+        // Auto-start animation
+        animate();
+    </script>
+</body>
+</html>
