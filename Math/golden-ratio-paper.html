@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黄金比例ネットワーク — φの美的数理</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=Noto+Serif+JP:wght@400;700&display=swap');
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #e8d5a3;
+            --deep-blue: #1a1a3e;
+            --purple: #667eea;
+            --text: #e0e0e0;
+            --text-dim: #a0a0b0;
+            --bg: #0d0d1a;
+            --card: rgba(26, 26, 62, 0.7);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(180deg, var(--bg) 0%, var(--deep-blue) 100%);
+            color: var(--text);
+            font-family: 'Noto Sans JP', sans-serif;
+            line-height: 1.9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 50px 40px;
+        }
+        h1 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 2.4em;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 1.1em;
+            margin-bottom: 35px;
+            letter-spacing: 2px;
+        }
+        .phi-hero {
+            text-align: center;
+            font-size: 3em;
+            color: var(--gold);
+            font-family: 'Noto Serif JP', serif;
+            margin: 30px 0;
+            text-shadow: 0 0 30px rgba(201, 168, 76, 0.4);
+        }
+        h2 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 1.6em;
+            color: var(--purple);
+            margin: 40px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--purple);
+        }
+        h3 {
+            font-size: 1.2em;
+            color: var(--gold-light);
+            margin: 25px 0 10px;
+        }
+        p { margin: 12px 0; text-align: justify; }
+        .formula {
+            background: rgba(13, 13, 26, 0.6);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3em;
+            margin: 18px 0;
+            font-family: 'Noto Serif JP', serif;
+            color: var(--gold);
+            border-left: 4px solid var(--gold);
+        }
+        .highlight { color: var(--gold); font-weight: bold; }
+        .theorem {
+            background: var(--card);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 18px;
+            margin: 22px 0;
+        }
+        .theorem h4 {
+            color: var(--gold);
+            font-size: 1.15em;
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            background: var(--card);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th {
+            background: linear-gradient(135deg, var(--purple), var(--gold));
+            padding: 10px 8px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+        }
+        td {
+            padding: 8px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        tr:hover { background: rgba(102, 126, 234, 0.1); }
+        .canvas-frame {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--card);
+            border-radius: 12px;
+        }
+        canvas {
+            border-radius: 8px;
+            background: rgba(10, 10, 26, 0.9);
+            max-width: 100%;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 16px 0;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-card .label {
+            font-size: 0.85em;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--gold);
+            font-family: 'Noto Serif JP', serif;
+        }
+        .conclusion {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(201, 168, 76, 0.15));
+            padding: 22px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        .conclusion ul { margin-left: 25px; }
+        .conclusion li { margin: 8px 0; }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 18px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+        @media print {
+            body { background: white; color: #333; }
+            .container { padding: 20px; }
+            h1 { -webkit-text-fill-color: #c9a84c; color: #c9a84c; }
+            h2 { color: #667eea; }
+            .formula, .theorem, .stat-card, table { background: #f5f5f5; }
+            .formula { border-left-color: #c9a84c; }
+            .theorem { border-color: #c9a84c; }
+            .highlight { color: #c9a84c; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>黄金比例ネットワーク</h1>
+    <p class="subtitle">φの美的数理 — Golden Ratio Aesthetics & Mathematics</p>
+
+    <div class="phi-hero">φ = 1.6180339887...</div>
+
+    <div class="formula">φ = (1 + √5) / 2</div>
+
+    <h2>1. 黄金比の定義と性質</h2>
+
+    <p>黄金比 φ（ファイ）は、線分を二つの部分 a, b（a &gt; b）に分けたとき、全体と長い部分の比が、長い部分と短い部分の比に等しくなるような比である。</p>
+
+    <div class="formula">a : b = (a + b) : a = φ : 1</div>
+
+    <div class="theorem">
+        <h4>定理: φの自己相似性</h4>
+        <p>φ は以下の性質を持つ:</p>
+        <div class="formula">φ = 1 + 1/φ = 1 + 1/(1 + 1/φ) = ...</div>
+        <p>この連分数展開は無限に続き、すべての係数が 1 である。</p>
+    </div>
+
+    <h2>2. フィボナッチ数列との関係</h2>
+
+    <p>フィボナッチ数列 F(n) の隣接項の比は、n → ∞ で φ に収束する。</p>
+
+    <table>
+        <tr><th>n</th><th>F(n)</th><th>F(n+1)/F(n)</th><th>φとの差</th></tr>
+        <tr><td>1</td><td>1</td><td>1.0</td><td>0.6180</td></tr>
+        <tr><td>2</td><td>1</td><td>2.0</td><td>0.3819</td></tr>
+        <tr><td>3</td><td>2</td><td>1.5</td><td>0.1180</td></tr>
+        <tr><td>4</td><td>3</td><td>1.6667</td><td>0.0486</td></tr>
+        <tr><td>5</td><td>5</td><td>1.6</td><td>0.0180</td></tr>
+        <tr><td>6</td><td>8</td><td>1.625</td><td>0.0069</td></tr>
+        <tr><td>7</td><td>13</td><td>1.6154</td><td>0.0027</td></tr>
+        <tr><td>8</td><td>21</td><td>1.6190</td><td>0.0010</td></tr>
+        <tr><td>9</td><td>34</td><td>1.6176</td><td>0.0004</td></tr>
+        <tr><td>10</td><td>55</td><td>1.6182</td><td>0.0001</td></tr>
+    </table>
+
+    <div class="formula">lim(n→∞) F(n+1)/F(n) = φ</div>
+
+    <h2>3. 黄金分割の幾何学</h2>
+
+    <p>長方形の縦横比が φ であるとき、それを「黄金長方形」と呼ぶ。黄金長方形から最大の内接正方形を切り取ると、残りは再び黄金長方形になる。この操作を無限に繰り返すことができる。</p>
+
+    <div class="canvas-frame">
+        <canvas id="goldenRect" width="720" height="445"></canvas>
+    </div>
+
+    <div class="grid-2">
+        <div class="stat-card">
+            <div class="label">黄金比 φ</div>
+            <div class="value">1.618</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">逆数 1/φ</div>
+            <div class="value">0.618</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">φ²</div>
+            <div class="value">2.618</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">√5</div>
+            <div class="value">2.236</div>
+        </div>
+    </div>
+
+    <h2>4. 自然界の黄金比</h2>
+
+    <p>黄金比は自然界の至るところに現れる:</p>
+
+    <table>
+        <tr><th>現象</th><th>比</th><th>φとの関係</th></tr>
+        <tr><td>ヒマワリの種（螺旋数）</td><td>34/55, 55/89</td><td>隣接フィボナッチ数</td></tr>
+        <tr><td>銀河の腕（渦巻）</td><td>対数螺旋</td><td>φを底とする螺旋</td></tr>
+        <tr><td>DNA二重螺旋</td><td>34Å / 21Å</td><td>34/21 ≈ φ</td></tr>
+        <tr><td>オウムガイの殻</td><td>対数螺旋</td><td>φ の成長率</td></tr>
+        <tr><td>人体（ヘソから床/身長）</td><td>≈ 0.618</td><td>1/φ</td></tr>
+    </table>
+
+    <h2>5. 黄金角とフィボタクシス</h2>
+
+    <p>黄金角は 360°/φ² ≈ 137.508° であり、植物の葉や種の配置（フィボタクシス）において最適 packing を実現する。</p>
+
+    <div class="formula">黄金角 = 360° / φ² ≈ 137.508°</div>
+
+    <div class="canvas-frame">
+        <canvas id="phyllotaxis" width="720" height="400"></canvas>
+    </div>
+
+    <h2>6. 美的評価指数</h2>
+
+    <p>ある長方形の縦横比が黄金比に近いほど「美しい」と評価できる。美的指数 B は以下で定義する:</p>
+
+    <div class="formula">B = 1 − |log(ratio) − log(φ)| / log(φ)</div>
+
+    <p>B = 1 のとき完全な黄金比、B = 0 のとき最も黄金比から遠い。</p>
+
+    <table>
+        <tr><th>形状</th><th>縦横比</th><th>美的指数 B</th></tr>
+        <tr><td>黄金長方形</td><td>1.618</td><td class="highlight">1.000</td></tr>
+        <tr><td>A4用紙</td><td>1.414</td><td>0.794</td></tr>
+        <tr><td>映画スクリーン (16:9)</td><td>1.778</td><td>0.875</td></tr>
+        <tr><td>正方形</td><td>1.000</td><td>0.000</td></tr>
+        <tr><td>白銀比長方形</td><td>1.414</td><td>0.794</td></tr>
+    </table>
+
+    <h2>7. 黄金螺旋の生成アルゴリズム</h2>
+
+    <p>黄金長方形の再帰的分割により黄金螺旋を生成する:</p>
+
+    <div class="theorem">
+        <h4>アルゴリズム: 黄金再帰分割</h4>
+        <p><strong>入力:</strong> 長方形 (x, y, w, h)、分割深度 d</p>
+        <p><strong>出力:</strong> 黄金分割された小長方形の集合</p>
+        <p><strong>手順:</strong></p>
+        <ol style="margin-left:25px;">
+            <li>d = 0 なら現在の長方形を返す</li>
+            <li>w &gt; h なら縦分割、否则横分割</li>
+            <li>分割点を w/φ（または h/φ）とする</li>
+            <li>2つの部分長方形に対して再帰的に適用</li>
+        </ol>
+    </div>
+
+    <h2>8. 結論</h2>
+
+    <div class="conclusion">
+        <p>黄金比 φ は数学・幾何学・自然界・芸術に普遍的に現れる比である。本研究では:</p>
+        <ul>
+            <li><strong>φの自己相似性:</strong> 連分数展開がすべて 1 の無限列</li>
+            <li><strong>フィボナッチ収束:</strong> F(n+1)/F(n) → φ の収束速度</li>
+            <li><strong>黄金分割:</strong> 再帰的な長方形分割による螺旋生成</li>
+            <li><strong>自然界:</strong> フィボタクシスにおける黄金角 137.508°</li>
+            <li><strong>美的指数:</strong> 縦横比から美を定量化する指標</li>
+        </ul>
+        <p>φ は単なる数ではなく、<strong>美と調和の普遍的な尺度</strong>である。</p>
+    </div>
+
+    <footer>
+        <p>著者: Qwen Code — 黄金比例ネットワーク研究 | 2026年4月13日</p>
+        <p style="margin-top:6px;">φ = (1+√5)/2 = 1.6180339887498948482...</p>
+    </footer>
+
+</div>
+
+<script>
+// Draw golden rectangle recursive split
+(function() {
+    const canvas = document.getElementById('goldenRect');
+    const ctx = canvas.getContext('2d');
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const W = canvas.width, H = canvas.height;
+    const depth = 8;
+
+    function goldenSplit(x, y, w, h, d) {
+        if (d <= 0) return [{x, y, w, h}];
+        const result = [];
+        if (w > h) {
+            const split = w / PHI;
+            result.push({x, y, w: split, h});
+            result.push(...goldenSplit(x + split, y, w - split, h, d - 1));
+        } else {
+            const split = h / PHI;
+            result.push({x, y, w, h: split});
+            result.push(...goldenSplit(x, y + split, w, h - split, d - 1));
+        }
+        return result;
+    }
+
+    const rects = goldenSplit(0, 0, W, H, depth);
+    const colors = [];
+    for (let i = 0; i < rects.length; i++) {
+        const hue = (i * 360 / rects.length * PHI) % 360;
+        colors.push(`hsla(${hue}, 65%, 55%, 0.5)`);
+    }
+
+    rects.forEach((r, i) => {
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(r.x, r.y, r.w, r.h);
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(r.x, r.y, r.w, r.h);
+    });
+
+    // Draw spiral
+    let cx = W/2, cy = H/2;
+    let angle = 0;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    for (let i = 0; i < 200; i++) {
+        const fib = i < 2 ? i + 1 : 0;
+        const r = 5 * Math.pow(PHI, i * 0.1);
+        angle += 0.3;
+        ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
+    }
+    ctx.strokeStyle = '#c9a84c';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+})();
+
+// Draw phyllotaxis
+(function() {
+    const canvas = document.getElementById('phyllotaxis');
+    const ctx = canvas.getContext('2d');
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const GA = (2 * Math.PI) / (PHI * PHI);
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const N = 300;
+
+    for (let i = 0; i < N; i++) {
+        const angle = i * GA;
+        const r = 12 * Math.sqrt(i);
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        const hue = (i * 137.508) % 360;
+        const size = 3 + 2 * Math.sin(i * 0.1);
+
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.75)`;
+        ctx.fill();
+    }
+})();
+</script>
+</body>
+</html>

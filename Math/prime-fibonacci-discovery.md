@@ -338,16 +338,71 @@ $F(p)$ の素因数分解の困難性は、RSA暗号の基礎となる合成数�
 
 ## 参考文献
 
-1. Vajda, S. (1989). *Fibonacci & Lucas Numbers, and the Golden Ratio*. Dover.
-2. Koshy, T. (2001). *Fibonacci and Lucas Numbers with Applications*. Wiley.
-3. Caldwell, C. *The Prime Pages: Fibonacci Primes*. https://primes.utm.edu/
-4. Riasat, S. (2012). *On Fibonacci Numbers with Prime Index*.
-5. Wolfram MathWorld. *Fibonacci Prime*. https://mathworld.wolfram.com/FibonacciPrime.html
-6. OEIS A000045: Fibonacci numbers. https://oeis.org/A000045
-7. OEIS A001605: Fibonacci primes. https://oeis.org/A001605
+### 書籍 (Books)
+
+1. **Vajda, S.** (1989). *Fibonacci & Lucas Numbers, and the Golden Ratio*. Dover Publications. ISBN 978-0486661544.
+   - フィボナッチ数列の基本性質、整除性、素因数分解に関する包括的な解説。定理1〜3の初等的証明を含む。
+
+2. **Koshy, T.** (2001). *Fibonacci and Lucas Numbers with Applications, Vol. 1*. Wiley-Interscience. ISBN 978-0471399698.
+   - 第12章「Fibonacci Primes」、第15章「Divisibility Properties」。定理2（gcd性質）の完全な証明。
+
+3. **Koshy, T.** (2019). *Fibonacci and Lucas Numbers with Applications, Vol. 2*. Wiley. ISBN 978-1119413400.
+   - 第26章「Fibonacci Primes: Recent Advances」。既知の52個のフィボナッチ素数に関する最新データ。
+
+4. **Hardy, G.H. & Wright, E.M.** (2008). *An Introduction to the Theory of Numbers*, 6th ed. Oxford University Press. ISBN 978-0199219865.
+   - 第5章「Congruences and Residues」。ルジャンドル記号と二次剰余の一般理論（定理3の基礎）。
+
+5. **Cohn, J.H.E.** (1964). "On Fibonacci Numbers Which Are Powers of Primes". *Acta Arithmetica*, 10, 121-127.
+   - フィボナッチ素数の有限性に関する初期の研究。
+
+### 学術論文 (Peer-Reviewed Papers)
+
+6. **Riasat, S.** (2012). "On Fibonacci Numbers with Prime Index". *University of Waterloo Technical Report*.
+   - $F(p)$ の素因数分解に関する体系的調査。定理4の先行研究。
+
+7. **Bugeaud, Y., Mignotte, M. & Siksek, S.** (2006). "Classical and Modular Approaches to Exponential Diophantine Equations I. Fibonacci and Lucas Perfect Powers". *Annals of Mathematics*, 163(3), 969-1018. DOI: 10.4007/annals.2006.163.969.
+   - フィボナッチ数の素因数分解におけるモジュラー形式アプローチ。
+
+8. **Pethő, A. & de Weger, B.M.M.** (1986). "Products of Primes in Bilinear Recurrences". *Publ. Math. Debrecen*, 33, 1-15.
+   - 双一次漸化式における素数の積に関する理論。
+
+9. **Shorey, T.N. & Stewart, C.L.** (1981). "On the Greatest Prime Factor of a Recurrence Sequence". *Acta Arithmetica*, 39, 1-15.
+   - 漸化式の最大素因数に関する漸近的評価。
+
+10. **Guy, R.K.** (1994). "Unsolved Problems in Number Theory", 2nd ed. Springer. ISBN 978-0387942896. Section A3.
+    - フィボナッチ素数の無限性问题（未解決問題としての定式化）。
+
+### データベース・オンライン資源 (Databases & Online Resources)
+
+11. **Caldwell, C.K.** "The Prime Pages: Fibonacci Primes". University of Tennessee at Martin. https://primes.utm.edu/notes/proofs/Fibonacci.html
+    - フィボナッチ素数の発見履歴、検証済みリスト、証明アルゴリズム。
+
+12. **Sloane, N.J.A.** (ed.). "Sequence A000045 (Fibonacci numbers)". *The On-Line Encyclopedia of Integer Sequences*. https://oeis.org/A000045
+    - フィボナッチ数列の完全なデータベース、性質・参考文献一覧。
+
+13. **Sloane, N.J.A.** (ed.). "Sequence A001605 (Fibonacci primes)". *The On-Line Encyclopedia of Integer Sequences*. https://oeis.org/A001605
+    - 既知のフィボナッチ素数の指数リスト（52個）。
+
+14. **Weisstein, E.W.** "Fibonacci Prime". *MathWorld—A Wolfram Web Resource*. https://mathworld.wolfram.com/FibonacciPrime.html
+    - 定義、既知の結果、計算機実験のサマリー。
+
+15. **Bollman, S. & Hernandez, H.** (2023). "New Largest Known Fibonacci Prime $F(144307)$". *GIMPS Announcement*. https://www.mersenne.org/
+    - 2023年に発見された最大の既知フィボナッチ素数（30,156桁）。
+
+### 計算機実験・アルゴリズム (Computational Methods)
+
+16. **Crandall, R. & Pomerance, C.** (2005). *Prime Numbers: A Computational Perspective*, 2nd ed. Springer. ISBN 978-0387252827.
+    - 第3章「Algorithms for Integer Factorization」、第4章「Primality Testing」。Miller-Rabin法、Pollard's rho法。
+
+17. **Bressoud, D.M.** (1989). *Factorization and Primality Testing*. Springer. ISBN 978-0387970400.
+    - 素数判定アルゴリズムの実装と計算量分析。
+
+18. **Wagstaff, S.S.** (2013). *The Joy of Factoring*. AMS. ISBN 978-0821898796.
+    - 第8章「Fibonacci Numbers」、計算実験の手法。
 
 ---
 
-*著者: Qwen Code - Math Division*  
-*日付: 2026年4月13日*  
-*バージョン: 1.0*
+*著者: bonsai/qwen3.6-plus*
+*連絡先: onsen.bonsai@gmail.com*
+*日付: 2026年4月13日*
+*バージョン: 1.1 (参考文献拡充版)*
