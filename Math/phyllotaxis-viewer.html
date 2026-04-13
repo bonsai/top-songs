@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phyllotaxis Flower Generator — GR Art</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a1a;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: #000;
+            border-radius: 50px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        .notch {
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 160px; height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+        .status-bar {
+            position: absolute;
+            top: 12px; left: 25px; right: 25px;
+            display: flex;
+            justify-content: space-between;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 99;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 0 80px;
+        }
+        .title {
+            color: #f5e6a3;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-family: serif;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 10px;
+            margin-bottom: 15px;
+        }
+        #canvas {
+            width: 360px;
+            height: 500px;
+            border-radius: 12px;
+            background: rgba(10,10,26,0.9);
+        }
+        .controls {
+            position: absolute;
+            bottom: 35px;
+            left: 15px; right: 15px;
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            z-index: 50;
+        }
+        button {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            font-size: 9px;
+            font-weight: 500;
+            flex: 1;
+            min-width: 55px;
+            max-width: 70px;
+        }
+        button:active { transform: scale(0.95); }
+        .home-indicator {
+            position: absolute;
+            bottom: 8px; left: 50%;
+            transform: translateX(-50%);
+            width: 134px; height: 5px;
+            background: #fff;
+            border-radius: 3px;
+        }
+        .info {
+            position: absolute;
+            bottom: 100px;
+            left: 10px; right: 10px;
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 9px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="notch"></div>
+        <div class="status-bar">
+            <span id="clock">9:41</span>
+            <span>📶 🔋</span>
+        </div>
+        <div class="container">
+            <div class="title" id="title">φ = 1.6180339887</div>
+            <div class="subtitle" id="subtitle">θ=137.508° | n=150 | classic</div>
+            <canvas id="canvas" width="360" height="500"></canvas>
+        </div>
+        <div class="info">bonsai/qwen3.6-plus</div>
+        <div class="controls">
+            <button onclick="setVariant('classic')">classic</button>
+            <button onclick="setVariant('pastel')">pastel</button>
+            <button onclick="setVariant('neon')">neon</button>
+            <button onclick="setVariant('fire')">fire</button>
+            <button onclick="setVariant('ocean')">ocean</button>
+            <button onclick="setVariant('rainbow')">rainbow</button>
+            <button onclick="setVariant('sakura')">sakura</button>
+        </div>
+        <div class="home-indicator"></div>
+    </div>
+
+    <script>
+    // ============================================================
+    // Phyllotaxis Flower Generator — JS Version
+    // Based on: phyllotaxis-flower-constants.json
+    // ============================================================
+    const PHI = 1.618033988749895;
+    const GOLDEN_ANGLE_DEG = 137.508;
+    const GOLDEN_ANGLE_RAD = GOLDEN_ANGLE_DEG * Math.PI / 180;
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const CX = W / 2;
+    const CY = H / 2.2;
+
+    let currentVariant = 'classic';
+    let animationId = null;
+    let animProgress = 0;
+
+    const variants = {
+        classic: {
+            bg: '#0a0a1a',
+            hueFn: (i, n) => (40 + i * 3 % 20),
+            sat: 70,
+            lightFn: (i, n) => 55 + Math.sqrt(i) * 0.3,
+            title: 'φ = 1.6180339887',
+        },
+        pastel: {
+            bg: '#faf6f0',
+            hueFn: (i, n) => (30 + i * 2 % 25),
+            sat: 40,
+            lightFn: (i, n) => 75 + Math.sqrt(i) * 0.2,
+            title: 'φ = 1.6180339887',
+        },
+        neon: {
+            bg: '#000000',
+            hueFn: (i, n) => (i * 360 / n) % 360,
+            sat: 100,
+            lightFn: (i, n) => 50 + Math.sin(i * 0.1) * 20,
+            title: 'φ = 1.6180339887',
+        },
+        fire: {
+            bg: '#0d0500',
+            hueFn: (i, n) => (i / n * 30) % 360,
+            sat: 90,
+            lightFn: (i, n) => 40 + Math.sqrt(i/n) * 30,
+            title: 'φ = 1.6180339887',
+        },
+        ocean: {
+            bg: '#000d14',
+            hueFn: (i, n) => (180 + i * 40 / n) % 360,
+            sat: 80,
+            lightFn: (i, n) => 45 + Math.sqrt(i/n) * 25,
+            title: 'φ = 1.6180339887',
+        },
+        rainbow: {
+            bg: '#050510',
+            hueFn: (i, n) => (i * 360 / n) % 360,
+            sat: 85,
+            lightFn: (i, n) => 50 + 20 * Math.sin(i * 0.05),
+            title: 'φ = 1.6180339887',
+        },
+        sakura: {
+            bg: '#f2eaef',
+            hueFn: (i, n) => (330 + i * 30 / n) % 360,
+            sat: 50,
+            lightFn: (i, n) => 70 + Math.sqrt(i/n) * 20,
+            title: 'φ = 1.6180339887',
+        },
+    };
+
+    function drawPhyllotaxis(variant, pointCount, animated) {
+        const v = variants[variant];
+        const n = pointCount || 150;
+        const scale = 10;
+
+        // Background
+        ctx.fillStyle = v.bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // Glow circle
+        ctx.beginPath();
+        ctx.arc(CX, CY, 160, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(201,168,76,0.1)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Generate points
+        const points = [];
+        for (let i = 0; i < n; i++) {
+            const angle = i * GOLDEN_ANGLE_RAD;
+            const r = scale * Math.sqrt(i);
+            const x = CX + r * Math.cos(angle);
+            const y = CY + r * Math.sin(angle);
+
+            if (x < 0 || x > W || y < 0 || y > H) continue;
+
+            const dotSize = 2 + Math.sqrt(i) * 0.5;
+            const hue = v.hueFn(i, n);
+            const sat = v.sat;
+            const light = v.lightFn(i, n);
+            const alpha = 0.6 + Math.min(i / n, 0.4);
+
+            points.push({ x, y, size: dotSize, hue, sat, light, alpha, i });
+        }
+
+        // Draw dots
+        const drawCount = animated ? Math.floor(animProgress * points.length) : points.length;
+        for (let i = 0; i < drawCount; i++) {
+            const p = points[i];
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${p.hue}, ${p.sat}%, ${p.light}%, ${p.alpha})`;
+            ctx.fill();
+        }
+
+        // Draw 5 spiral arms (parastichies)
+        for (let s = 0; s < 5; s++) {
+            const startAngle = s * 360 / 5 * Math.PI / 180;
+            ctx.beginPath();
+            for (let i = 0; i < 20; i++) {
+                const angle = startAngle + i * GOLDEN_ANGLE_RAD;
+                const r = scale * Math.sqrt(i * 5 + s * 3);
+                const x = CX + r * Math.cos(angle);
+                const y = CY + r * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = `hsla(${v.hueFn(s * 30, n)}, 60%, 70%, 0.35)`;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+        }
+
+        // Update title
+        document.getElementById('title').textContent = v.title;
+        document.getElementById('subtitle').textContent =
+            `θ=${GOLDEN_ANGLE_DEG}° | n=${n} points | ${variant}`;
+
+        // Footer
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.font = '7px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('bonsai/qwen3.6-plus | onsen.bonsai@gmail.com', W/2, H - 10);
+    }
+
+    function setVariant(v) {
+        currentVariant = v;
+        animProgress = 0;
+        if (animationId) cancelAnimationFrame(animationId);
+        animateIn();
+    }
+
+    function animateIn() {
+        animProgress += 0.03;
+        drawPhyllotaxis(currentVariant, 150, true);
+        if (animProgress < 1) {
+            animationId = requestAnimationFrame(animateIn);
+        } else {
+            drawPhyllotaxis(currentVariant, 150, false);
+        }
+    }
+
+    // Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').textContent =
+            now.getHours().toString().padStart(2,'0') + ':' +
+            now.getMinutes().toString().padStart(2,'0');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Init
+    drawPhyllotaxis('classic', 150, false);
+    </script>
+</body>
+</html>
