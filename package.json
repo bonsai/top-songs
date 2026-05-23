@@ -1,0 +1,12 @@
+{
+  "name": "top-songs",
+  "version": "1.0.0",
+  "description": "Kworb Spotify Chart Preview Player",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 8080"
+  },
+  "keywords": ["spotify", "chart", "music"],
+  "author": "",
+  "license": "MIT"
+}
