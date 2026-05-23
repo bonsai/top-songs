@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>✨Compeitou - だれでもコンペ開催！✨</title>
+    <!-- Firebase SDK (CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body bgcolor="#F0F0F0">
+<center>
+    <table width="80%" bgcolor="#FFFFFF" cellpadding="5" cellspacing="1" border="0">
+        <tr bgcolor="#CCCCCC">
+            <td align="center"><font size="+2" color="#000000"><b>✨Compeitou - だれでもコンペ開催！✨</b></font></td>
+        </tr>
+        <tr bgcolor="#EEEEEE">
+            <td align="right">
+                <a href="./auth.html"><font color="#0000FF">ログイン / サインアップ</font></a>
+            </td>
+        </tr>
+    </table>
+    <br>
+
+    <table width="80%" bgcolor="#FFFFFF" cellpadding="5" cellspacing="1" border="0">
+        <tr bgcolor="#DDDDDD">
+            <td><font size="+1" color="#000000"><b>🏆 現在開催中のコンペ一覧 🏆</b></font></td>
+            <td align="right"><a href="./create_competition.html"><font color="#0000FF">💡コンペを主催する</font></a></td>
+        </tr>
+    </table>
+
+    <table width="80%" bgcolor="#FFFFFF" cellpadding="5" cellspacing="1" border="0" id="competitions-list">
+        <!-- コンペ一覧はJavaScriptでここに動的に挿入されます -->
+        <tr bgcolor="#EEEEFF">
+            <td><font color="#888888">現在、開催中のコンペはありません。</font></td>
+        </tr>
+    </table>
+    <br>
+
+    <table width="80%" bgcolor="#FFFFFF" cellpadding="5" cellspacing="1" border="0">
+        <tr bgcolor="#CCCCCC">
+            <td align="center"><font size="-1" color="#000000">&copy; 2026 Compeitou. All Rights Reserved.</font></td>
+        </tr>
+    </table>
+</center>
+
+<script src="./js/app.js"></script>
+</body>
+</html>
