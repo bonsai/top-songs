@@ -105,7 +105,7 @@
   </div>
 </div>
 <script>
-const CONFIG={proxyBase:'http://localhost:3000/api/proxy?url=',kworbBase:'https://kworb.net/spotify/country/',spotifyEmbedBase:'https://open.spotify.com/embed/search/'};
+const CONFIG={proxyBase:'/api/proxy?url=',kworbBase:'https://kworb.net/spotify/country/',spotifyEmbedBase:'https://open.spotify.com/embed/search/'};
 let chartData=[],currentCountry='global',activePlayIndex=-1,playTimer=null;
 function showLoading(m='読み込み中...'){document.getElementById('chartArea').innerHTML='<div class="loading-msg">⏳ '+m+'</div>'}
 function showError(m){document.getElementById('chartArea').innerHTML='<div class="error-msg">❌ '+m+'<br><small>ネットワーク接続またはCORSプロキシの問題かもしれません</small></div>'}
