@@ -2,9 +2,10 @@
   "name": "top-songs",
   "version": "1.0.0",
   "description": "Kworb Spotify Chart Preview Player",
-  "main": "index.html",
+  "main": "server.js",
   "scripts": {
-    "start": "npx serve -l 8080"
+    "start": "node server.js",
+    "test": "node smoke-test.js"
   },
   "keywords": ["spotify", "chart", "music"],
   "author": "",

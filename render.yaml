@@ -1,9 +1,9 @@
 services:
   - type: web
     name: top-songs
-    env: static
-    buildCommand: echo "Static site"
-    staticPublishPath: .
+    env: node
+    buildCommand: echo "No build required"
+    startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: 18
