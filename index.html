@@ -19,14 +19,20 @@
     th{position:sticky;top:0;background:#282828;padding:12px 8px;text-align:left;font-weight:600;border-bottom:2px solid #404040;z-index:10}
     td{padding:10px 8px;border-bottom:1px solid #282828;vertical-align:middle}
     tr:hover{background:#282828}
+    tr.active-track{background:rgba(29,185,84,.22)}
     .rank{font-weight:700;width:40px;text-align:center}
     .rank-change{width:30px;text-align:center;font-size:.8rem;color:#1DB954}
     .rank-change.down{color:#e22134}
     .rank-change.same{color:#888}
-    .track-cell{display:flex;align-items:center;gap:8px;max-width:300px}
+    .track-cell{display:flex;align-items:center;gap:10px;max-width:420px}
     .track-info{flex:1;min-width:0}
     .track-title{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .track-artist{font-size:.8rem;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .track-title a,.track-artist a{color:inherit;text-decoration:none}
+    .track-title a:hover,.track-artist a:hover{text-decoration:underline}
+    .track-links{display:flex;gap:8px;flex-shrink:0;align-items:center}
+    .inline-link{color:#1DB954;text-decoration:none;font-size:.82rem;white-space:nowrap}
+    .inline-link:hover{text-decoration:underline}
     .preview-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#1DB954;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
     .preview-btn:hover{background:#1ed760;transform:scale(1.1)}
     .preview-btn:active{transform:scale(.95)}
@@ -38,11 +44,15 @@
     .popup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
     .popup-overlay.hidden{display:none}
     .popup{background:#181818;border-radius:16px;width:100%;max-width:480px;overflow:hidden;border:1px solid #282828;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-    .popup-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#282828;border-bottom:1px solid #404040}
+    .popup-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#282828;border-bottom:1px solid #404040;gap:12px}
     .popup-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%}
+    .popup-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .popup-link{color:#1DB954;text-decoration:none;font-size:.8rem;white-space:nowrap}
+    .popup-link:hover{text-decoration:underline}
     .popup-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 8px;line-height:1}
     .popup-close:hover{opacity:.8}
     .popup iframe{width:100%;height:352px;border:none}
+    .popup-note{padding:10px 20px 0;color:#b3b3b3;font-size:.78rem}
     .loading-msg{text-align:center;padding:40px;color:#888}
     .error-msg{text-align:center;padding:40px;color:#e22134;background:rgba(226,33,52,.1);border-radius:8px;margin:20px 0}
     .footer{text-align:center;padding:20px;color:#888;font-size:.8rem}
@@ -53,7 +63,7 @@
 <body>
 <div class="header">
   <h1>🎵 Kworb Spotify Global Daily Chart</h1>
-  <p>曲名の横の ▶ ボタンで30秒プレビュー再生（Spotify埋め込み）</p>
+  <p>曲名は Last.fm、アーティスト名は Discogs、spotify▶ は自動再生して15秒ごとに次曲へ移動、youtube▶ は検索へリンク</p>
 </div>
 <div class="controls">
   <select id="countrySelect">
@@ -85,29 +95,45 @@
   <div class="popup">
     <div class="popup-header">
       <span class="popup-title" id="popupTrackName">Loading...</span>
-      <button class="popup-close" onclick="closePopup()">×</button>
+      <div class="popup-actions">
+        <a id="spotifyFallbackLink" class="popup-link" href="https://open.spotify.com" target="_blank" rel="noopener noreferrer">Spotify本体で開く</a>
+        <button class="popup-close" onclick="closePopup()">×</button>
+      </div>
     </div>
+    <div class="popup-note">埋め込み再生が始まらない場合は「Spotify本体で開く」を使えます。</div>
     <iframe id="spotifyFrame" src="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
   </div>
 </div>
 <script>
-const CONFIG={proxyBase:'/api/proxy?url=',kworbBase:'https://kworb.net/spotify/country/',spotifyEmbedBase:'https://open.spotify.com/embed/search/'};
-let chartData=[],currentCountry='global';
+const CONFIG={proxyBase:'http://localhost:3000/api/proxy?url=',kworbBase:'https://kworb.net/spotify/country/',spotifyEmbedBase:'https://open.spotify.com/embed/search/'};
+let chartData=[],currentCountry='global',activePlayIndex=-1,playTimer=null;
 function showLoading(m='読み込み中...'){document.getElementById('chartArea').innerHTML='<div class="loading-msg">⏳ '+m+'</div>'}
 function showError(m){document.getElementById('chartArea').innerHTML='<div class="error-msg">❌ '+m+'<br><small>ネットワーク接続またはCORSプロキシの問題かもしれません</small></div>'}
 function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function formatNumber(n){if(n===undefined||n===null)return'-';return Number(n).toLocaleString('en-US')}
 function parseArtistTitle(t){const m=(t||'').trim().match(/^([^-\\]+?)\s*[-\\]\s*(.+)$/);if(m){let title=m[2].trim();title=title.replace(/\s*\(w\/[^)]+\)\s*$/,'').trim();return{artist:m[1].trim(),title}}return{artist:'Unknown',title:(t||'').trim()}}
+function createExternalUrl(kind,artist,title){const q=(artist+' '+title).trim();if(kind==='lastfm')return'https://www.last.fm/search/tracks?q='+encodeURIComponent(q);
+if(kind==='spotify')return'https://open.spotify.com/search/'+encodeURIComponent(q);
+if(kind==='youtube')return'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+if(kind==='discogs')return'https://www.discogs.com/search/?type=artist&q='+encodeURIComponent(artist);
+return'#'}
+function clearPlayTimer(){if(playTimer){clearTimeout(playTimer);playTimer=null}}
+function handleEscape(e){if(e.key==='Escape')closePopup()}
+function setActiveTrack(index){document.querySelectorAll('tr.active-track').forEach(row=>row.classList.remove('active-track'));const row=document.querySelector('tr[data-row-index="'+index+'"]');if(!row)return;
+row.classList.add('active-track');row.scrollIntoView({behavior:'smooth',block:'center'})}
+function scheduleNextTrack(){clearPlayTimer();if(activePlayIndex<0||activePlayIndex>=chartData.length-1)return;
+playTimer=setTimeout(()=>playPreviewAt(activePlayIndex+1),15000)}
 function renderChart(data,country){const c=document.getElementById('chartArea');if(!data||data.length===0){showError('チャートデータの取得に失敗しました');return}
 let h='<table><thead><tr><th class="rank">#</th><th class="rank-change">Δ</th><th>Artist - Title</th><th class="days">Days</th><th class="peak">Pk</th><th class="streams">Streams</th><th class="streams">7Day</th><th class="streams">Total</th></tr></thead><tbody>';
-data.forEach(r=>{const cc=r.change>0?'':r.change<0?'down':'same';const cs=r.change>0? '+'+r.change:r.change<0?r.change:'=';
-h+='<tr><td class="rank">'+r.rank+'</td><td class="rank-change '+cc+'">'+cs+'</td><td><div class="track-cell"><div class="track-info"><div class="track-title" title="'+escapeHtml(r.title)+'">'+escapeHtml(r.title)+'</div><div class="track-artist" title="'+escapeHtml(r.artist)+'">'+escapeHtml(r.artist)+'</div></div><button class="preview-btn" onclick="playPreview(\''+escapeHtml(r.artist).replace(/'/g,"\\'")+'\',\''+escapeHtml(r.title).replace(/'/g,"\\'")+'\')" title="Spotifyでプレビュー再生" aria-label="Play '+escapeHtml(r.title)+'">▶</button></div></td><td class="days">'+(r.days||'-')+'</td><td class="peak">'+(r.peak||'-')+(r.peakx?'×'+r.peakx:'')+'</td><td class="streams">'+formatNumber(r.streams)+'</td><td class="streams">'+formatNumber(r.streams7)+'</td><td class="streams">'+formatNumber(r.total)+'</td></tr>'});
+data.forEach((r,index)=>{const cc=r.change>0?'':r.change<0?'down':'same';const cs=r.change>0? '+'+r.change:r.change<0?r.change:'=';
+h+='<tr data-row-index="'+index+'"><td class="rank">'+r.rank+'</td><td class="rank-change '+cc+'">'+cs+'</td><td><div class="track-cell"><div class="track-info"><div class="track-title" title="'+escapeHtml(r.title)+'"><a href="'+createExternalUrl('lastfm',r.artist,r.title)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(r.title)+'</a></div><div class="track-artist" title="'+escapeHtml(r.artist)+'"><a href="'+createExternalUrl('discogs',r.artist,r.title)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(r.artist)+'</a></div></div><div class="track-links"><a class="inline-link" href="'+createExternalUrl('spotify',r.artist,r.title)+'" target="_blank" rel="noopener noreferrer" onclick="playPreviewAt('+index+');return false;" title="Spotifyで自動再生">spotify▶</a><a class="inline-link" href="'+createExternalUrl('youtube',r.artist,r.title)+'" target="_blank" rel="noopener noreferrer" title="YouTubeで検索">youtube▶</a></div></div></td><td class="days">'+(r.days||'-')+'</td><td class="peak">'+(r.peak||'-')+(r.peakx?'×'+r.peakx:'')+'</td><td class="streams">'+formatNumber(r.streams)+'</td><td class="streams">'+formatNumber(r.streams7)+'</td><td class="streams">'+formatNumber(r.total)+'</td></tr>'});
 h+='</tbody></table>';c.innerHTML=h}
-function playPreview(artist,title){const q=encodeURIComponent((artist+' '+title).trim());const url=CONFIG.spotifyEmbedBase+q+'?utm_source=generator';
-const o=document.getElementById('popupOverlay'),f=document.getElementById('spotifyFrame'),t=document.getElementById('popupTrackName');
-t.textContent=artist+' - '+title;f.src=url;o.classList.remove('hidden');
-const esc=e=>{if(e.key==='Escape'){closePopup();document.removeEventListener('keydown',esc)}};document.addEventListener('keydown',esc)}
-function closePopup(){const o=document.getElementById('popupOverlay'),f=document.getElementById('spotifyFrame');o.classList.add('hidden');f.src=''}
+function playPreviewAt(index){const track=chartData[index];if(!track)return;activePlayIndex=index;setActiveTrack(index);playPreview(track.artist,track.title)}
+function playPreview(artist,title){const q=encodeURIComponent((artist+' '+title).trim());const url=CONFIG.spotifyEmbedBase+q+'?utm_source=generator&autoplay=1';
+const o=document.getElementById('popupOverlay'),f=document.getElementById('spotifyFrame'),t=document.getElementById('popupTrackName'),l=document.getElementById('spotifyFallbackLink');
+t.textContent=artist+' - '+title;l.href=createExternalUrl('spotify',artist,title);f.src=url;o.classList.remove('hidden');
+scheduleNextTrack()}
+function closePopup(){const o=document.getElementById('popupOverlay'),f=document.getElementById('spotifyFrame');o.classList.add('hidden');f.src='';clearPlayTimer();activePlayIndex=-1;document.querySelectorAll('tr.active-track').forEach(row=>row.classList.remove('active-track'))}
 document.getElementById('popupOverlay').addEventListener('click',e=>{if(e.target.id==='popupOverlay')closePopup()});
 async function loadChart(){const btn=document.getElementById('loadBtn'),country=document.getElementById('countrySelect').value;currentCountry=country;
 btn.disabled=true;btn.textContent='🔄 読み込み中...';showLoading('kworb.netからデータを取得中...');
@@ -127,7 +153,7 @@ const pm=pt.match(/\(x(\d+)\)/),peakx=pm?parseInt(pm[1]):0;
 const ps=t=>{const n=(t||'').replace(/[+,]/g,'').trim();return n?parseInt(n):0};
 rows.push({rank,change,artist,title,days,peak,peakx,streams:ps(tds[5]?.textContent),streams7:ps(tds[7]?.textContent),total:ps(tds[9]?.textContent)})}
 catch(e){console.warn('Parse error:',e)}});return rows}
-document.addEventListener('DOMContentLoaded',()=>{document.addEventListener('keydown',e=>{if(e.key==='Escape')closePopup()})});
+document.addEventListener('DOMContentLoaded',()=>{document.addEventListener('keydown',handleEscape)});
 </script>
 </body>
 </html>
