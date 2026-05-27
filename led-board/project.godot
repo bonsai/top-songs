@@ -1,0 +1,9 @@
+; Godot 4.6.3 LED Board project
+[application]
+config/name="LED Board"
+config/description="LEDドットマトリクス電光掲示板 - Godot移植版"
+config/version="1.0.0"
+run/main_scene="res://led_board.tscn"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"

@@ -1,0 +1,198 @@
+[gd_scene load_steps=3 format=3 uid="uid://dfs5nvhcc3ntf"]
+
+[ext_resource type="Script" path="res://led_board.gd" id="1_3q5eg"]
+[ext_resource type="Script" path="res://dot_matrix.gd" id="2_7j8p2"]
+
+[node name="root" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3q5eg")
+
+[node name="DotMatrix" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_7j8p2")
+
+[node name="SettingsPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 310.0
+offset_bottom = 360.0
+
+[node name="Margin" type="MarginContainer" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="SettingsPanel/Margin"]
+layout_mode = 2
+
+[node name="StatusRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StatusLabel" type="Label" parent="SettingsPanel/Margin/VBox/StatusRow"]
+layout_mode = 2
+text = "STATUS"
+theme_override_font_sizes/font_size = 10
+
+[node name="StatusValue" type="Label" parent="SettingsPanel/Margin/VBox/StatusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "LED BOARD"
+theme_override_font_sizes/font_size = 10
+
+[node name="FontRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="FontLabel" type="Label" parent="SettingsPanel/Margin/VBox/FontRow"]
+layout_mode = 2
+text = "FONT"
+theme_override_font_sizes/font_size = 10
+
+[node name="AutoBtn" type="Button" parent="SettingsPanel/Margin/VBox/FontRow"]
+layout_mode = 2
+text = "AUTO"
+theme_override_font_sizes/font_size = 9
+button_pressed = true
+toggle_mode = true
+
+[node name="B5x7Btn" type="Button" parent="SettingsPanel/Margin/VBox/FontRow"]
+layout_mode = 2
+text = "5×7"
+theme_override_font_sizes/font_size = 9
+toggle_mode = true
+
+[node name="P3x5Btn" type="Button" parent="SettingsPanel/Margin/VBox/FontRow"]
+layout_mode = 2
+text = "3×5"
+theme_override_font_sizes/font_size = 9
+toggle_mode = true
+
+[node name="J16x16Btn" type="Button" parent="SettingsPanel/Margin/VBox/FontRow"]
+layout_mode = 2
+text = "16×16"
+theme_override_font_sizes/font_size = 9
+disabled = true
+toggle_mode = true
+
+[node name="ColorRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ColorLabel" type="Label" parent="SettingsPanel/Margin/VBox/ColorRow"]
+layout_mode = 2
+text = "COLOR"
+theme_override_font_sizes/font_size = 10
+
+[node name="HSlider" type="HSlider" parent="SettingsPanel/Margin/VBox/ColorRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 27.0
+step = 1.0
+value = 11.0
+
+[node name="SizeRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SizeLabel" type="Label" parent="SettingsPanel/Margin/VBox/SizeRow"]
+layout_mode = 2
+text = "SIZE"
+theme_override_font_sizes/font_size = 10
+
+[node name="HSlider" type="HSlider" parent="SettingsPanel/Margin/VBox/SizeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 5.0
+step = 1.0
+value = 3.0
+
+[node name="GlowRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="GlowLabel" type="Label" parent="SettingsPanel/Margin/VBox/GlowRow"]
+layout_mode = 2
+text = "GLOW"
+theme_override_font_sizes/font_size = 10
+
+[node name="HSlider" type="HSlider" parent="SettingsPanel/Margin/VBox/GlowRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 3.0
+step = 1.0
+value = 2.0
+
+[node name="SpeedRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SpeedLabel" type="Label" parent="SettingsPanel/Margin/VBox/SpeedRow"]
+layout_mode = 2
+text = "SPEED"
+theme_override_font_sizes/font_size = 10
+
+[node name="HSlider" type="HSlider" parent="SettingsPanel/Margin/VBox/SpeedRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 5.0
+step = 1.0
+value = 3.0
+
+[node name="InputRow" type="HBoxContainer" parent="SettingsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LineEdit" type="LineEdit" parent="SettingsPanel/Margin/VBox/InputRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "メッセージ入力"
+theme_override_font_sizes/font_size = 11
+
+[node name="SendBtn" type="Button" parent="SettingsPanel/Margin/VBox/InputRow"]
+layout_mode = 2
+text = "SEND"
+theme_override_font_sizes/font_size = 10
+
+[node name="ToggleBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 50.0
+offset_bottom = 50.0
+text = "⚙"
+
+[node name="DemoTimer" type="Timer" parent="."]
+wait_time = 15.0
+one_shot = true
+
+[connection signal="value_changed" from="SettingsPanel/Margin/VBox/ColorRow/HSlider" to="." method="_on_color_changed"]
+[connection signal="value_changed" from="SettingsPanel/Margin/VBox/SizeRow/HSlider" to="." method="_on_size_changed"]
+[connection signal="value_changed" from="SettingsPanel/Margin/VBox/GlowRow/HSlider" to="." method="_on_glow_changed"]
+[connection signal="value_changed" from="SettingsPanel/Margin/VBox/SpeedRow/HSlider" to="." method="_on_speed_changed"]
+[connection signal="pressed" from="SettingsPanel/Margin/VBox/InputRow/SendBtn" to="." method="_on_send_pressed"]
+[connection signal="pressed" from="ToggleBtn" to="." method="_toggle_settings"]

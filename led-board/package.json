@@ -1,0 +1,22 @@
+{
+  "name": "led-board",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx watch src/dev-server.ts",
+    "dev:debug": "npx tsx watch --inspect src/dev-server.ts",
+    "dev:debug-brk": "npx tsx watch --inspect-brk src/dev-server.ts",
+    "msg": "npx tsx src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "dotenv": "^17.4.2",
+    "pg": "^8.21.0"
+  }
+}

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#000">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>LED Board</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#080808;color:#0f0;display:flex;flex-direction:column;align-items:center;min-height:100dvh;font-family:monospace;gap:10px;padding:10px;overflow-x:hidden}
+body.mc #dash{display:none}
+body.mc{justify-content:center;padding:0;background:#000;overflow:hidden}
+body.mc .board{max-width:none;border:none;padding:0;background:transparent;box-shadow:none}
+body.mc .board::after,body.mc .screw,body.mc .brand,body.mc #modelbl{display:none}
+body.mc .pwr{display:none}
+body.mc .cw{background:transparent;padding:0;box-shadow:none}
+body.mc canvas{width:auto;height:100dvh;margin:0 auto;border-radius:0}
+body.md #clock-only{display:none}
+body.md #dash{display:flex;flex-direction:column;align-items:center;width:100%;max-width:580px;gap:10px}
+body.demo .pwr{background:#ff0!important;box-shadow:0 0 10px #ff0!important}
+body.demo #modelbl::after{content:" DEMO";color:#ff0;animation:blink 1s step-end infinite}
+body.news .pwr{background:#0ff!important;box-shadow:0 0 10px #0ff!important}
+body.news #modelbl::after{content:" NEWS";color:#0ff}
+body.news .btn.n{background:linear-gradient(180deg,#0ff,#088);color:#000;border-bottom-color:#088}
+body.listen .pwr{background:#f0f!important;box-shadow:0 0 10px #f0f!important}
+body.listen #modelbl::after{content:" LISTEN";color:#f0f;animation:blink 1s step-end infinite}
+.btn.n{color:#0ff;border-bottom-color:#066}
+.btn.l{color:#f0f;border-bottom-color:#707}
+@keyframes blink{50%{opacity:0}}
+
+.board{background:linear-gradient(160deg,#1a1a1a,#0d0d0d);width:100%;max-width:520px;border:clamp(6px,1.5vw,16px) solid;border-color:#3a3a3a #2a2a2a #222 #2a2a2a;border-radius:clamp(8px,2vw,16px);box-shadow:0 0 0 clamp(2px,.4vw,5px) #555,0 0 0 clamp(3px,.6vw,6px) #111,0 clamp(8px,2vw,20px) clamp(24px,5vw,60px) rgba(0,0,0,.8),inset 0 0 clamp(24px,5vw,80px) rgba(0,0,0,.6);padding:clamp(10px,2.5vw,24px);position:relative;flex-shrink:0}
+.board::after{content:"";position:absolute;top:clamp(4px,.8vw,8px);left:10%;right:10%;height:2px;background:repeating-linear-gradient(90deg,#222 0 3px,transparent 3px 6px);opacity:.3}
+.screw{position:absolute;width:clamp(8px,2vw,16px);height:clamp(8px,2vw,16px);background:radial-gradient(circle at 35% 30%,#888,#333);border-radius:50%;border:1px solid #666;box-shadow:inset 0 1px 2px rgba(255,255,255,.12),0 1px 2px rgba(0,0,0,.4)}
+.screw::after{content:"";position:absolute;top:50%;left:50%;width:40%;height:2px;background:#555;transform:translate(-50%,-50%) rotate(-45deg);border-radius:1px}
+.s1{top:clamp(5px,1.2vw,12px);left:clamp(5px,1.2vw,12px)}.s2{top:clamp(5px,1.2vw,12px);right:clamp(5px,1.2vw,12px)}
+.s3{bottom:clamp(5px,1.2vw,12px);left:clamp(5px,1.2vw,12px)}.s4{bottom:clamp(5px,1.2vw,12px);right:clamp(5px,1.2vw,12px)}
+.brand{position:absolute;bottom:clamp(5px,1.2vw,14px);right:clamp(8px,2vw,18px);font:clamp(7px,1.6vw,10px) monospace;color:#333;letter-spacing:2px}
+.pwr{position:absolute;top:clamp(6px,1.5vw,16px);right:50%;margin-right:clamp(-36px,-7vw,-50px);width:clamp(4px,.8vw,6px);height:clamp(4px,.8vw,6px);border-radius:50%;background:#0f0;box-shadow:0 0 6px #0f0}
+#modelbl{color:#0a0;font:clamp(9px,2vw,11px) monospace;text-align:center;letter-spacing:3px;margin-bottom:clamp(3px,.6vw,6px);opacity:.5}
+.cw{background:#000;border-radius:4px;padding:clamp(2px,.4vw,4px);box-shadow:inset 0 0 20px rgba(0,0,0,.7)}
+canvas{display:block;background:#000;border-radius:2px;width:100%;height:auto}
+
+.panel{background:linear-gradient(180deg,#1a1a1a,#111);border:1px solid #2a2a2a;border-radius:10px;padding:clamp(8px,1.5vw,14px);box-shadow:0 4px 20px rgba(0,0,0,.5);width:100%;max-width:520px}
+.panel h2{font:clamp(10px,2vw,12px) monospace;color:#666;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px;min-height:clamp(28px,5vw,36px)}
+.row:last-child{margin-bottom:0}
+.lbl{color:#555;font:clamp(9px,1.8vw,11px) monospace;min-width:3.2em}
+
+.slider-row{align-items:center;gap:8px}
+.slider-wrap{flex:1;min-width:100px;position:relative}
+.slider-wrap input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:#333;border-radius:2px;outline:none;margin:0;position:relative;z-index:1}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:clamp(16px,3.5vw,22px);height:clamp(16px,3.5vw,22px);border-radius:50%;background:linear-gradient(135deg,#555,#333);border:2px solid #0f0;cursor:pointer;box-shadow:0 0 6px rgba(0,255,65,.3);transition:border-color .15s}
+.slider-wrap input[type=range]::-moz-range-thumb{width:clamp(16px,3.5vw,22px);height:clamp(16px,3.5vw,22px);border-radius:50%;background:linear-gradient(135deg,#555,#333);border:2px solid #0f0;cursor:pointer;box-shadow:0 0 6px rgba(0,255,65,.3)}
+.slider-labels{display:flex;justify-content:space-between;margin-top:3px;padding:0 clamp(8px,1.5vw,11px)}
+.slider-labels span{color:#444;font:clamp(7px,1.4vw,9px) monospace;text-align:center;cursor:pointer;transition:color .15s}
+.slider-labels span.on{color:#0f0}
+
+.url-box{display:flex;gap:6px;align-items:center;width:100%}
+.url-box input{flex:1;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:4px;color:#0f0;padding:6px 10px;font:clamp(9px,1.8vw,11px) monospace;outline:none;width:0;min-width:0}
+.url-box input:focus{border-color:#0f0}
+.url-box .btn{flex-shrink:0}
+.btn{background:linear-gradient(180deg,#3a3a3a,#222);border:none;border-bottom:3px solid #111;color:#ccc;padding:clamp(4px,.8vw,6px) clamp(8px,1.5vw,12px);border-radius:4px;font:clamp(9px,2vw,11px) monospace;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.4);transition:transform .04s,border-bottom .04s,opacity .15s;user-select:none;touch-action:manipulation;white-space:nowrap}
+.btn:active{transform:translateY(2px);border-bottom-width:1px}.btn:hover{opacity:.85}
+.btn.g{color:#0f0;border-bottom-color:#0a0}
+.artist-panel .row{margin-bottom:4px}
+.artist-panel h2{margin-bottom:4px}
+.artist-btns{display:flex;flex-wrap:wrap;gap:3px}
+.artist-btns .btn{font-size:clamp(7px,1.3vw,10px);padding:clamp(2px,.4vw,5px) clamp(4px,.8vw,8px)}
+.artist-btns .btn.active{color:#0f0;border-bottom-color:#0f0;box-shadow:0 0 8px rgba(0,255,65,.3)}
+.playlist-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.playlist-row .lbl{min-width:auto;font-size:clamp(8px,1.5vw,10px)}
+.playlist-row .val{color:#0f0;font:clamp(9px,1.8vw,11px) monospace;min-width:3em}
+</style>
+</head>
+<body class="md">
+
+<div id="dash">
+  <div class="board">
+    <div class="screw s1"></div><div class="screw s2"></div>
+    <div class="screw s3"></div><div class="screw s4"></div>
+    <div class="pwr" id="pwr"></div>
+    <div class="brand">LED·BRD</div>
+    <div id="modelbl">LED BOARD</div>
+    <div class="cw"><canvas id="c"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <div class="row slider-row">
+      <span class="lbl">COLOR</span>
+      <div class="slider-wrap" style="flex:3">
+        <input type="range" id="colorSlider" min="0" max="27" step="1" value="5">
+        <div class="slider-labels">
+          <span data-v="0" style="color:#ff0041">&#x2588;</span>
+          <span data-v="4" style="color:#ffcc00">&#x2588;</span>
+          <span data-v="8" style="color:#55ff00">&#x2588;</span>
+          <span data-v="12" style="color:#00ffcc">&#x2588;</span>
+          <span data-v="16" style="color:#0041ff">&#x2588;</span>
+          <span data-v="20" style="color:#aa00ff">&#x2588;</span>
+          <span data-v="24" style="color:#ff69b4">&#x2588;</span>
+          <span data-v="27">RBW</span>
+        </div>
+      </div>
+    </div>
+    <div class="row slider-row">
+      <span class="lbl">SIZE</span>
+      <div class="slider-wrap">
+        <input type="range" id="sizeSlider" min="1" max="5" step="1" value="3">
+        <div class="slider-labels">
+          <span data-v="1">1</span><span data-v="2">2</span>
+          <span data-v="3">3</span><span data-v="4">4</span><span data-v="5">5</span>
+        </div>
+      </div>
+    </div>
+    <div class="row slider-row">
+      <span class="lbl">GLOW</span>
+      <div class="slider-wrap">
+        <input type="range" id="glowSlider" min="0" max="3" step="1" value="2">
+        <div class="slider-labels">
+          <span data-v="0">OFF</span><span data-v="1">LOW</span>
+          <span data-v="2">MED</span><span data-v="3">HIGH</span>
+        </div>
+      </div>
+    </div>
+    <div class="row slider-row">
+      <span class="lbl">MATRIX</span>
+      <div class="slider-wrap">
+        <input type="range" id="matrixSlider" min="0" max="2" step="1" value="1">
+        <div class="slider-labels">
+          <span data-v="0">3&#x00d7;5</span><span data-v="1">5&#x00d7;7</span><span data-v="2">5&#x00d7;9</span>
+        </div>
+      </div>
+    </div>
+    <div class="row slider-row">
+      <span class="lbl">SPEED</span>
+      <div class="slider-wrap">
+        <input type="range" id="speedSlider" min="1" max="5" step="1" value="3">
+        <div class="slider-labels">
+          <span data-v="1">1</span><span data-v="2">2</span>
+          <span data-v="3">3</span><span data-v="4">4</span><span data-v="5">5</span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="lbl">NEWS</span>
+      <button class="btn n" id="newsBtn">START</button>
+    </div>
+    <div class="row">
+      <span class="lbl">LISTEN</span>
+      <button class="btn l" id="listenBtn">START</button>
+    </div>
+    <div class="row">
+      <span class="lbl">API URL</span>
+      <div class="url-box">
+        <input type="text" id="urlBox" readonly onclick="this.select()">
+        <button class="btn g" id="copyBtn">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel artist-panel">
+    <h2>ARTISTS</h2>
+    <div class="row"><div class="artist-btns" id="artistBtns"></div></div>
+    <div class="row playlist-row">
+      <button class="btn g" id="playAllBtn">PLAY ALL</button>
+      <span class="lbl">PAUSE</span>
+      <div class="slider-wrap" style="flex:1;min-width:60px">
+        <input type="range" id="pauseSlider" min="0" max="10" step="0.5" value="0">
+        <div class="slider-labels">
+          <span>0.5s</span><span style="float:right">10s</span>
+        </div>
+      </div>
+      <span class="val" id="pauseVal">0s</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Colors (same as rainbow-clock) ──
+const COLORS = [
+  "#ff0041","#ff2020","#ff4400","#ff6600","#ff8800",
+  "#ffaa00","#ffcc00","#ffdd00","#ffff41","#aaff00",
+  "#55ff00","#00ff41","#00ff88","#00ffcc","#00ffff",
+  "#41ffff","#0088ff","#0041ff","#4400ff","#8800ff",
+  "#aa00ff","#ff41ff","#ff00aa","#ff0066","#ff69b4",
+  "#a020f0","#ffffff",
+];
+
+// ── State ──
+let st = { color: "#00ff41", size: 3, glow: 2, matrix: 1, speed: 3 };
+let message = "";
+let columns = [];     // column buffer: [col][row] = boolean
+let scrollPos = 0;
+let numViewCols = 0;
+let colX = [], rowY = [], W = 0, H = 0, R = 0, nr = 0;
+let rhue = 0;
+const SPEEDS = [0.25, 0.5, 1, 1.5, 2.5];
+const MATS = [{ dh: 5 }, { dh: 7 }, { dh: 9 }];
+let demoTimer = null;
+let isDemo = false;
+const DEMO_IDLE_MS = 15000;
+const DEMO_TEXT = "SAMPLE";
+let newsNexting = false;
+
+// ── Layout ──
+function rebuildLayout() {
+  const f = st.size;
+  const dh = MATS[st.matrix].dh;
+  R = 5 + (f - 1) * 3;
+  const STEP = 14 + (f - 1) * 6;
+  const PAD = 16 + (f - 1) * 8;
+  nr = dh * f;
+
+  const maxW = (window.innerWidth || document.documentElement.clientWidth) - 20;
+  numViewCols = Math.max(4, Math.floor((maxW - PAD * 2) / STEP));
+
+  W = numViewCols * STEP + PAD * 2;
+  H = nr * STEP + PAD * 2;
+
+  colX = [];
+  for (let c = 0; c < numViewCols; c++) colX.push(PAD + c * STEP);
+
+  rowY = [];
+  for (let r = 0; r < nr; r++) rowY.push(PAD + r * STEP);
+
+  const ca = document.getElementById("c");
+  ca.width = W;
+  ca.height = H;
+}
+
+// ── Text → LED columns via Canvas sampling ──
+function textToColumns(msg) {
+  if (!msg || msg.length === 0) return [];
+
+  const fontSize = Math.round(nr * 0.85);
+
+  const mc = document.createElement("canvas");
+  const mctx = mc.getContext("2d");
+  mctx.font = `bold ${fontSize}px sans-serif`;
+  const tw = Math.ceil(mctx.measureText(msg).width);
+  if (tw <= 0) return [];
+
+  const oc = document.createElement("canvas");
+  oc.width = tw;
+  oc.height = nr;
+  const ctx = oc.getContext("2d");
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, tw, nr);
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.textBaseline = "middle";
+  ctx.fillText(msg, 0, nr / 2);
+
+  const imgData = ctx.getImageData(0, 0, tw, nr);
+  const cols = [];
+  for (let x = 0; x < tw; x++) {
+    const col = [];
+    for (let y = 0; y < nr; y++) {
+      const idx = (y * tw + x) * 4;
+      col.push(imgData.data[idx] > 128);
+    }
+    cols.push(col);
+  }
+  return cols;
+}
+
+function logEvent(text, source) {
+  fetch("/api/log", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `text=${encodeURIComponent(text)}&source=${encodeURIComponent(source)}`,
+  }).catch(() => {});
+}
+
+function startDemo() {
+  if (isDemo) return;
+  isDemo = true;
+  document.body.classList.add("demo");
+  message = DEMO_TEXT;
+  columns = textToColumns(DEMO_TEXT);
+  scrollPos = 0;
+  logEvent(DEMO_TEXT, "demo");
+}
+
+function resetDemo() {
+  clearTimeout(demoTimer);
+  if (isDemo) {
+    isDemo = false;
+    document.body.classList.remove("demo");
+  }
+  demoTimer = setTimeout(startDemo, DEMO_IDLE_MS);
+}
+
+function buildMessage(msg) {
+  if (msg === message) return;
+  message = msg || "";
+  columns = textToColumns(message);
+  scrollPos = 0;
+  newsNexting = false;
+}
+
+// ── News mode ──
+let newsOn = false;
+async function toggleNews() {
+  const action = newsOn ? "stop" : "start";
+  try {
+    const res = await fetch("/api/news", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `action=${action}`,
+    });
+    const data = await res.json();
+    newsOn = data.newsMode;
+    updateNewsUI();
+  } catch (_) {}
+}
+
+async function fetchNewsStatus() {
+  try {
+    const res = await fetch("/api/news");
+    const data = await res.json();
+    newsOn = data.newsMode;
+    updateNewsUI();
+  } catch (_) {}
+}
+
+function updateNewsUI() {
+  const btn = document.getElementById("newsBtn");
+  if (newsOn) {
+    document.body.classList.add("news");
+    btn.textContent = "STOP";
+    clearTimeout(demoTimer);
+    if (isDemo) { isDemo = false; document.body.classList.remove("demo"); }
+  } else {
+    document.body.classList.remove("news");
+    btn.textContent = "START";
+    demoTimer = setTimeout(startDemo, DEMO_IDLE_MS);
+  }
+}
+
+// ── Listen mode ──
+let listenOn = false;
+let listenStream = null;
+let listenAudioCtx = null;
+let listenPcmBuf = [];
+let listenCaptureInterval = null;
+let listenSending = false;
+
+async function toggleListen() {
+  const action = listenOn ? "stop" : "start";
+  try {
+    const res = await fetch("/api/listen", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `action=${action}`,
+    });
+    const data = await res.json();
+    listenOn = data.listenMode;
+    updateListenUI();
+    if (listenOn) {
+      startAudioCapture();
+    } else {
+      stopAudioCapture();
+    }
+  } catch (_) {}
+}
+
+async function startAudioCapture() {
+  try {
+    listenStream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true,
+      video: true,
+    });
+    listenStream.getVideoTracks().forEach(t => t.stop());
+    listenAudioCtx = new AudioContext({ sampleRate: 44100 });
+    const source = listenAudioCtx.createMediaStreamSource(listenStream);
+    const processor = listenAudioCtx.createScriptProcessor(4096, 1, 1);
+    listenPcmBuf = [];
+    processor.onaudioprocess = (e) => {
+      const data = e.inputBuffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) listenPcmBuf.push(data[i]);
+    };
+    source.connect(processor);
+    processor.connect(listenAudioCtx.destination);
+    listenCaptureInterval = setInterval(sendPcmChunk, 2000);
+  } catch (err) {
+    console.error("Capture error:", err);
+    listenOn = false;
+    fetch("/api/listen", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "action=stop",
+    }).catch(() => {});
+    updateListenUI();
+  }
+}
+
+function stopAudioCapture() {
+  if (listenCaptureInterval) { clearInterval(listenCaptureInterval); listenCaptureInterval = null; }
+  if (listenAudioCtx) { try { listenAudioCtx.close(); } catch {} listenAudioCtx = null; }
+  if (listenStream) { listenStream.getTracks().forEach(t => t.stop()); listenStream = null; }
+  listenPcmBuf = [];
+}
+
+function sendPcmChunk() {
+  if (listenSending || listenPcmBuf.length < 22050) return;
+  listenSending = true;
+  const chunk = listenPcmBuf.splice(0, 88200);
+  const buf = new Float32Array(chunk);
+  const bytes = new Uint8Array(buf.buffer);
+  fetch("/api/listen/pcm", {
+    method: "POST",
+    headers: { "Content-Type": "application/octet-stream" },
+    body: bytes,
+  }).then(r => r.json()).then(data => {
+    if (data.match) {
+      listenOn = false;
+      stopAudioCapture();
+      updateListenUI();
+    }
+  }).catch(() => {}).finally(() => { listenSending = false; });
+}
+
+async function fetchListenStatus() {
+  try {
+    const res = await fetch("/api/listen");
+    const data = await res.json();
+    listenOn = data.listenMode;
+    updateListenUI();
+  } catch (_) {}
+}
+
+function updateListenUI() {
+  const btn = document.getElementById("listenBtn");
+  if (listenOn) {
+    document.body.classList.add("listen");
+    btn.textContent = "STOP";
+    clearTimeout(demoTimer);
+    if (isDemo) { isDemo = false; document.body.classList.remove("demo"); }
+  } else {
+    document.body.classList.remove("listen");
+    btn.textContent = "START";
+    demoTimer = setTimeout(startDemo, DEMO_IDLE_MS);
+  }
+}
+
+// ── Render ──
+const ca = document.getElementById("c");
+const ctx = ca.getContext("2d");
+
+function dot(ci, ri, on) {
+  const x = colX[ci], y = rowY[ri];
+  ctx.beginPath();
+  ctx.arc(x, y, R, 0, Math.PI * 2);
+  if (on) {
+    const blur = [0, 4, 8 + 4 * st.size, 16 + 8 * st.size][st.glow] || 8 + 4 * st.size;
+    if (blur) { ctx.shadowColor = st.color; ctx.shadowBlur = blur; }
+    ctx.fillStyle = st.color;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(x - 2, y - 2, R * 0.35, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,.35)";
+    ctx.fill();
+  } else {
+    ctx.fillStyle = "rgba(40,40,40,.85)";
+    ctx.fill();
+  }
+}
+
+function render() {
+  const rainbow = st.color === "rainbow";
+  if (rainbow) { rhue = (rhue + 3) % 360; st.color = hslHex(rhue); }
+
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+
+  if (columns.length === 0) return;
+
+  const gap = numViewCols;
+  const total = columns.length + gap;
+  scrollPos = (scrollPos + SPEEDS[st.speed - 1]) % total;
+  const base = Math.floor(scrollPos);
+
+  if (newsOn && !newsNexting && base >= columns.length) {
+    newsNexting = true;
+    fetch("/api/news", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "action=next",
+    }).catch(() => {});
+  }
+
+  for (let ci = 0; ci < numViewCols; ci++) {
+    const idx = base + ci;
+    if (idx < columns.length) {
+      const col = columns[idx];
+      for (let ri = 0; ri < nr; ri++) dot(ci, ri, col[ri]);
+    } else {
+      for (let ri = 0; ri < nr; ri++) dot(ci, ri, false);
+    }
+  }
+
+  if (rainbow) st.color = "rainbow";
+}
+
+function hslHex(h) {
+  h = ((h % 360) + 360) % 360;
+  const sec = Math.floor(h / 60), f = h / 60 - sec, p = 0, q = 1 - f, t = f;
+  let r = 0, g = 0, b = 0;
+  switch (sec) {
+    case 0: r = 1; g = t; break; case 1: r = q; g = 1; break;
+    case 2: g = 1; b = t; break; case 3: g = q; b = 1; break;
+    case 4: r = t; b = 1; break; case 5: r = 1; b = q; break;
+  }
+  const hx = n => Math.round(255 * n).toString(16).padStart(2, "0");
+  return "#" + hx(r) + hx(g) + hx(b);
+}
+
+// ── API (SSE + polling fallback) ──
+let lastMsg = "";
+function receiveMessage(msg) {
+  if (msg === lastMsg && !isDemo) return;
+  lastMsg = msg;
+  buildMessage(msg);
+  if (!newsOn) resetDemo();
+}
+
+async function fetchMessage() {
+  try {
+    const res = await fetch("/api/message");
+    const data = await res.json();
+    if (data.message !== undefined) receiveMessage(data.message);
+  } catch (_) {}
+}
+
+// SSE: instant push from local dev server
+const es = new EventSource("/api/events");
+es.onmessage = e => {
+  try {
+    const data = JSON.parse(e.data);
+    if (data.message !== undefined) receiveMessage(data.message);
+  } catch (_) {}
+};
+es.onerror = () => {
+  es.close();
+  // Fallback: polling
+  fetchMessage();
+  setInterval(fetchMessage, 3000);
+};
+
+// ── UI Update ──
+function updateUI() {
+  const el = document.getElementById("modelbl");
+  const pw = document.getElementById("pwr");
+  if (st.color === "rainbow") {
+    el.style.color = "#f0f"; pw.style.background = "#fff"; pw.style.boxShadow = "0 0 8px #fff";
+  } else {
+    el.style.color = "#0a0"; pw.style.background = "#0f0"; pw.style.boxShadow = "0 0 6px #0f0";
+  }
+  const apiUrl = location.origin + "/api/message";
+  const box = document.getElementById("urlBox");
+  if (box) box.value = apiUrl;
+}
+
+function syncUI() {
+  const ci = st.color === "rainbow" ? 27 : Math.max(0, COLORS.indexOf(st.color));
+  document.getElementById("colorSlider").value = ci;
+  document.getElementById("sizeSlider").value = st.size;
+  document.getElementById("glowSlider").value = st.glow;
+  document.getElementById("matrixSlider").value = st.matrix;
+  document.getElementById("speedSlider").value = st.speed;
+
+  document.querySelectorAll(".slider-labels span").forEach(s => {
+    const parent = s.closest(".slider-wrap");
+    if (!parent) return;
+    const slider = parent.querySelector("input[type=range]");
+    if (!slider) return;
+    let val;
+    switch (slider.id) {
+      case "colorSlider": val = st.color === "rainbow" ? 27 : COLORS.indexOf(st.color); break;
+      case "sizeSlider": val = st.size; break;
+      case "glowSlider": val = st.glow; break;
+      case "matrixSlider": val = st.matrix; break;
+      case "speedSlider": val = st.speed; break;
+    }
+    s.classList.toggle("on", +s.dataset.v === val);
+  });
+
+  updateUI();
+}
+
+// ── Bind Controls ──
+document.getElementById("colorSlider").addEventListener("input", function () {
+  const v = +this.value;
+  st.color = v === 27 ? "rainbow" : COLORS[v];
+  syncUI();
+});
+document.getElementById("sizeSlider").addEventListener("input", function () {
+  st.size = +this.value;
+  rebuildLayout();
+  buildMessage(message);
+  syncUI();
+});
+document.getElementById("glowSlider").addEventListener("input", function () {
+  st.glow = +this.value;
+  syncUI();
+});
+document.getElementById("matrixSlider").addEventListener("input", function () {
+  st.matrix = +this.value;
+  rebuildLayout();
+  buildMessage(message);
+  syncUI();
+});
+document.getElementById("speedSlider").addEventListener("input", function () {
+  st.speed = +this.value;
+  syncUI();
+});
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const box = document.getElementById("urlBox");
+  try { await navigator.clipboard.writeText(box.value); box.style.borderColor = "#0f0"; setTimeout(() => box.style.borderColor = "", 1500); }
+  catch { box.select(); document.execCommand("copy"); }
+});
+document.getElementById("newsBtn").addEventListener("click", toggleNews);
+document.getElementById("listenBtn").addEventListener("click", toggleListen);
+
+// ── Init ──
+rebuildLayout();
+fetchMessage();
+fetchNewsStatus();
+fetchListenStatus();
+setInterval(render, 80);
+syncUI();
+addEventListener("resize", () => { rebuildLayout(); });
+demoTimer = setTimeout(startDemo, DEMO_IDLE_MS);
+
+// ── Artists / Playlist ──
+const ARTISTS = [
+  "masuzoe3","火星人から来た人","SANPODANCERS","Manamin",
+  "表現モシクハ","ningen","ともちん","時空狂5moyo",
+  "ダンボール","西山亮","おしゃれどろぼう","蔵前ドープネス"
+];
+const ARTIST_COLORS = [
+  "#ff0041","#ff8800","#ffcc00","#55ff00",
+  "#00ffcc","#0041ff","#aa00ff","#ff41ff",
+  "#ff69b4","#00ff41","#ff6600","#ff0066"
+];
+let playlistMode = false;
+let playlistIndex = 0;
+let playlistWaiting = false;
+let playlistPause = 0;
+let playlistTimer = null;
+
+function setArtistColor(idx) {
+  st.color = ARTIST_COLORS[idx];
+  const ci = COLORS.indexOf(st.color);
+  if (ci >= 0) document.getElementById("colorSlider").value = ci;
+}
+
+const artistBtns = document.getElementById("artistBtns");
+ARTISTS.forEach((name, i) => {
+  const b = document.createElement("button");
+  b.className = "btn";
+  b.innerHTML = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${ARTIST_COLORS[i]};margin-right:4px;vertical-align:middle;box-shadow:0 0 4px ${ARTIST_COLORS[i]}"></span>${name}`;
+  b.addEventListener("click", () => {
+    stopPlaylist();
+    setArtistColor(i);
+    buildMessage(name);
+    resetDemo();
+  });
+  artistBtns.appendChild(b);
+});
+
+const playAllBtn = document.getElementById("playAllBtn");
+const pauseSlider = document.getElementById("pauseSlider");
+const pauseVal = document.getElementById("pauseVal");
+
+pauseSlider.addEventListener("input", function() {
+  playlistPause = +this.value;
+  pauseVal.textContent = playlistPause + "s";
+});
+
+playAllBtn.addEventListener("click", () => {
+  playlistMode = !playlistMode;
+  if (playlistMode) {
+    playAllBtn.textContent = "STOP";
+    clearTimeout(demoTimer);
+    if (isDemo) { isDemo = false; document.body.classList.remove("demo"); }
+    playlistIndex = 0;
+    playlistWaiting = false;
+    setArtistColor(0);
+    buildMessage(ARTISTS[0]);
+    updateArtistHighlight();
+  } else {
+    stopPlaylist();
+    resetDemo();
+  }
+});
+
+function stopPlaylist() {
+  playlistMode = false;
+  if (playlistTimer) { clearTimeout(playlistTimer); playlistTimer = null; }
+  playlistWaiting = false;
+  playAllBtn.textContent = "PLAY ALL";
+  document.querySelectorAll(".artist-btns .btn").forEach(b => {
+    b.classList.remove("active");
+    b.style.borderBottomColor = "";
+    b.style.boxShadow = "";
+  });
+}
+
+function updateArtistHighlight() {
+  document.querySelectorAll(".artist-btns .btn").forEach((b, i) => {
+    const on = i === playlistIndex;
+    b.classList.toggle("active", on);
+    if (on) {
+      b.style.borderBottomColor = ARTIST_COLORS[i];
+      b.style.boxShadow = `0 0 10px ${ARTIST_COLORS[i]}80`;
+    } else {
+      b.style.borderBottomColor = "";
+      b.style.boxShadow = "";
+    }
+  });
+}
+
+// ── Patch render for playlist end-detection ──
+const _origRender = render;
+render = function() {
+  const rainbow = st.color === "rainbow";
+  if (rainbow) { rhue = (rhue + 3) % 360; st.color = hslHex(rhue); }
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  if (columns.length === 0) return;
+  const gap = numViewCols;
+  const total = columns.length + gap;
+  scrollPos = (scrollPos + SPEEDS[st.speed - 1]) % total;
+  const base = Math.floor(scrollPos);
+  if (newsOn && !newsNexting && base >= columns.length) {
+    newsNexting = true;
+    fetch("/api/news", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body:"action=next" }).catch(()=>{});
+  }
+  if (playlistMode && !playlistWaiting && base >= columns.length && columns.length > 0) {
+    playlistWaiting = true;
+    const next = (playlistIndex + 1) % ARTISTS.length;
+    playlistTimer = setTimeout(() => {
+      if (!playlistMode) return;
+      playlistIndex = next;
+      setArtistColor(next);
+      buildMessage(ARTISTS[playlistIndex]);
+      playlistWaiting = false;
+      playlistTimer = null;
+      updateArtistHighlight();
+    }, playlistPause * 1000);
+  }
+  for (let ci = 0; ci < numViewCols; ci++) {
+    const idx = base + ci;
+    if (idx < columns.length) {
+      const col = columns[idx];
+      for (let ri = 0; ri < nr; ri++) dot(ci, ri, col[ri]);
+    } else {
+      for (let ri = 0; ri < nr; ri++) dot(ci, ri, false);
+    }
+  }
+  if (rainbow) st.color = "rainbow";
+};
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+  }
+</script>
+</body>
+</html>
